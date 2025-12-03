@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Miu Controle - Sistema de Controle Financeiro Inteligente
 
-## Getting Started
+Sistema completo de controle financeiro pessoal com IA, desenvolvido com Next.js 16, TypeScript, Tailwind CSS e Framer Motion.
 
-First, run the development server:
+## 🚀 Funcionalidades
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Landing Page (Pública)
+
+- Hero section com animação interativa
+- Demonstração do produto em tempo real
+- Seções de recursos, preços e FAQ
+- Design responsivo e moderno
+
+### Sistema de Autenticação
+
+- **Rotas Públicas:** `/`, `/login`, `/register`
+- **Rotas Privadas:** `/dashboard/*` (requer autenticação)
+
+### Dashboard Completo
+
+- **Visão Geral:** Gráficos, KPIs, orçamento mensal
+- **Transações:** Listagem com filtros e busca
+- **Relatórios:** Gráficos avançados e insights
+- **Investimentos:** Portfólio e sugestões IA
+- **Metas:** Objetivos financeiros gamificados
+- **Conexões:** Open Finance e automações
+- **Perfil & Configurações**
+
+## 🛠️ Tecnologias
+
+- Next.js 16 + TypeScript
+- Tailwind CSS
+- Framer Motion
+- Recharts
+- Context API
+
+## 📦 Estrutura
+
+```
+src/
+├── app/
+│   ├── page.tsx                # Landing page
+│   ├── login/                  # Autenticação
+│   ├── register/
+│   └── dashboard/              # Área privada
+├── components/
+│   ├── ui/                     # Componentes base
+│   ├── dashboard/              # Componentes do dashboard
+│   └── landing/                # Componentes da landing
+├── contexts/                   # State management
+├── lib/                        # Utilitários e constantes
+└── types/                      # TypeScript types
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚦 Como Executar
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Instalar dependências
+npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Desenvolvimento
+npm run dev
 
-## Learn More
+# Build produção
+npm run build
+npm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+Acesse: http://localhost:3000
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🎨 Design Tokens
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```typescript
+{
+  primary: '#00404f',    // Dark Teal
+  secondary: '#3c88a0',  // Teal Médio
+  accent: '#7cddb1',     // Mint
+  success: '#007459',    // Verde
+  expense: '#ff6b6b',    // Vermelho
+  warning: '#ffd166'     // Amarelo
+}
+```
 
-## Deploy on Vercel
+## 🔐 Autenticação
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Sistema mockado (qualquer email/senha funciona). Para produção, integrar com API real editando `src/contexts/AuthContext.tsx`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📱 Responsividade
+
+- Desktop: Sidebar fixa
+- Mobile: Bottom navigation
+
+## 🎯 Próximos Passos
+
+- Integração backend
+- Open Finance real
+- Notificações push
+- Modo escuro
+- Exportação relatórios
