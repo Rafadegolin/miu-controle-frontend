@@ -1,57 +1,53 @@
-# Dockerfile para Next.js - Otimizado para produção
-
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copiar arquivos de dependências
-COPY package.json ./
-COPY package-lock.json* ./
-RUN npm ci || npm install
+COPY package.json package-lock.json* ./
+
+RUN echo "📦 Instalando dependências..." && \
+    npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copiar dependências do stage anterior
+# Copiar dependências
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build args para variáveis de ambiente em build time
-ARG NEXT_PUBLIC_API_URL
+# Build args
+ARG NEXT_PUBLIC_API_URL=https://api.miucontrole.com.br
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-
-# Desabilitar telemetria
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 
-# Build da aplicação
-RUN npm run build
+RUN echo "🔨 Iniciando build do Next.js..." && \
+    echo "API URL: $NEXT_PUBLIC_API_URL" && \
+    npm run build && \
+    echo "✅ Build concluído!"
 
-# Stage 3: Runner (produção)
+# Stage 3: Runner
 FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-# Criar usuário não-root
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-# Copiar arquivos necessários para produção
+# Copiar arquivos de build
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
 
-# Ajustar permissões
-RUN chown -R nextjs:nodejs /app
+# Copiar standalone
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
 EXPOSE 3000
-
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
