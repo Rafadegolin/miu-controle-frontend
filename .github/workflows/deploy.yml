@@ -1,9 +1,10 @@
-name: Build and Deploy Frontend
+name: Build and Push Docker Image
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -19,11 +20,19 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Build e Push Docker Image
-        uses: docker/build-push-action@v5
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build e Push Docker Image (com retry)
+        uses: nick-fields/retry-action@v3
         with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/miu-controle-frontend:latest
-          build-args: |
-            NEXT_PUBLIC_API_URL=https://api.miucontrole.com.br
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 10
+          command: |
+            docker buildx build \
+              --platform linux/amd64 \
+              --build-arg NEXT_PUBLIC_API_URL=https://api.miucontrole.com.br \
+              --tag ${{ secrets.DOCKER_USERNAME }}/miu-controle-frontend:latest \
+              --push \
+              .
