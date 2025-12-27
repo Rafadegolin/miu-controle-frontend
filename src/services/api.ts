@@ -8,12 +8,14 @@ import type {
   CreateAccountDto,
   AccountSummaryResponse,
   Category,
+  CategoryStats,
   CreateCategoryDto,
   Transaction,
   CreateTransactionDto,
   PaginatedResponse,
   TransactionFilters,
   TransactionSummaryResponse,
+  TransactionStatsMonthly,
   Goal,
   CreateGoalDto,
   AddPurchaseLinkDto,
@@ -25,9 +27,15 @@ import type {
   BudgetStatusResponse,
   RecurringTransaction,
   CreateRecurringTransactionDto,
+  DashboardHomeResponse,
+  Session,
 } from "@/types/api";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
+// DEBUG: Verificar qual URL está sendo usada
+console.log("🔍 API_BASE_URL:", API_BASE_URL);
+console.log("🔍 process.env.NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
 
 class ApiService {
   private api: AxiosInstance;
@@ -143,8 +151,28 @@ class ApiService {
     }
   }
 
+  async getSessions(): Promise<Session[]> {
+    const response = await this.api.get<Session[]>("/auth/sessions");
+    return response.data;
+  }
+
+  async revokeSession(id: string): Promise<{ message: string }> {
+    const response = await this.api.delete(`/auth/sessions/${id}`);
+    return response.data;
+  }
+
+  async revokeAllSessions(): Promise<{ message: string }> {
+    const response = await this.api.delete("/auth/sessions/revoke-all");
+    return response.data;
+  }
+
   async forgotPassword(email: string): Promise<{ message: string }> {
     const response = await this.api.post("/auth/forgot-password", { email });
+    return response.data;
+  }
+
+  async verifyResetToken(token: string): Promise<{ valid: boolean }> {
+    const response = await this.api.post("/auth/verify-reset-token", { token });
     return response.data;
   }
 
@@ -158,6 +186,89 @@ class ApiService {
     });
     return response.data;
   }
+
+  // ============================================
+  // RELATÓRIOS
+  // ============================================
+
+  async getDashboardReport(filters: {
+    startDate: string;
+    endDate: string;
+  }): Promise<any> {
+    const response = await this.api.get("/reports/dashboard", {
+      params: filters,
+    });
+    return response.data;
+  }
+
+  async getCategoryAnalysis(filters: {
+    startDate: string;
+    endDate: string;
+  }): Promise<any> {
+    const response = await this.api.get("/reports/category-analysis", {
+      params: filters,
+    });
+    return response.data;
+  }
+
+  async getMonthlyTrend(filters: {
+    startDate: string;
+    endDate: string;
+  }): Promise<any> {
+    const response = await this.api.get("/reports/monthly-trend", {
+      params: filters,
+    });
+    return response.data;
+  }
+
+  async getAccountAnalysis(filters: {
+    startDate: string;
+    endDate: string;
+  }): Promise<any> {
+    const response = await this.api.get("/reports/account-analysis", {
+      params: filters,
+    });
+    return response.data;
+  }
+
+  async getTopTransactions(filters: {
+    startDate: string;
+    endDate: string;
+  }): Promise<any> {
+    const response = await this.api.get("/reports/top-transactions", {
+      params: filters,
+    });
+    return response.data;
+  }
+
+  async getInsights(filters: {
+    startDate: string;
+    endDate: string;
+  }): Promise<any> {
+    const response = await this.api.get("/reports/insights", {
+      params: filters,
+    });
+    return response.data;
+  }
+
+  async getFullReport(filters: {
+    startDate: string;
+    endDate: string;
+  }): Promise<any> {
+    const response = await this.api.get("/reports/full-report", {
+      params: filters,
+    });
+    return response.data;
+  }
+
+  async getDashboardHome(): Promise<DashboardHomeResponse> {
+    const response = await this.api.get<DashboardHomeResponse>("/dashboard/home");
+    return response.data;
+  }
+
+  // ============================================
+  // NOTIFICAÇÕES (MÉTODOS NOVOS)
+  // ============================================
 
   // ============================================
   // USER
@@ -187,13 +298,23 @@ class ApiService {
     return response.data;
   }
 
+  async changePassword(data: any): Promise<{ message: string }> {
+    const response = await this.api.patch("/users/me/password", data);
+    return response.data;
+  }
+
+  async deleteMyAccount(): Promise<{ message: string }> {
+    const response = await this.api.delete("/users/me");
+    return response.data;
+  }
+
   // ============================================
   // ACCOUNTS
   // ============================================
 
-  async getAccounts(isActive?: boolean): Promise<Account[]> {
+  async getAccounts(activeOnly?: boolean): Promise<Account[]> {
     const response = await this.api.get<Account[]>("/accounts", {
-      params: { isActive },
+      params: { activeOnly },
     });
     return response.data;
   }
@@ -223,7 +344,7 @@ class ApiService {
 
   async getAccountsSummary(): Promise<AccountSummaryResponse> {
     const response = await this.api.get<AccountSummaryResponse>(
-      "/accounts/summary"
+      "/accounts/balance"
     );
     return response.data;
   }
@@ -262,14 +383,25 @@ class ApiService {
     return response.data;
   }
 
+  async getCategoryStats(
+    id: string,
+    params?: { startDate?: string; endDate?: string }
+  ): Promise<CategoryStats> {
+    const response = await this.api.get<CategoryStats>(
+      `/categories/${id}/stats`,
+      { params }
+    );
+    return response.data;
+  }
+
   // ============================================
   // TRANSACTIONS
   // ============================================
 
   async getTransactions(
     filters?: TransactionFilters
-  ): Promise<PaginatedResponse<Transaction>> {
-    const response = await this.api.get<PaginatedResponse<Transaction>>(
+  ): Promise<Transaction[]> {
+    const response = await this.api.get<Transaction[]>(
       "/transactions",
       {
         params: filters,
@@ -332,6 +464,25 @@ class ApiService {
       {
         params: filters,
       }
+    );
+    return response.data;
+  }
+
+  async getMonthlyStats(params: { month: string }): Promise<TransactionStatsMonthly> {
+    const response = await this.api.get<TransactionStatsMonthly>(
+      "/transactions/stats/monthly",
+      { params }
+    );
+    return response.data;
+  }
+
+  async getCategoryTransactionStats(
+    categoryId: string,
+    params: { startDate: string; endDate: string }
+  ): Promise<any> {
+    const response = await this.api.get(
+      `/transactions/stats/category/${categoryId}`,
+      { params }
     );
     return response.data;
   }

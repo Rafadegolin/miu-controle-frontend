@@ -67,8 +67,8 @@ export interface Account {
   userId: string;
   name: string;
   type: AccountType;
-  initialBalance: number;
-  currentBalance: number;
+  initialBalance: number | string;
+  currentBalance: number | string;
   currency: string;
   color: string;
   icon?: string;
@@ -95,8 +95,9 @@ export interface Category {
 
 export interface Transaction {
   id: string;
+  userId: string;
   accountId: string;
-  categoryId?: string;
+  categoryId: string;
   type: TransactionType;
   amount: number;
   description: string;
@@ -107,6 +108,15 @@ export interface Transaction {
   receiptUrl?: string;
   status: "PENDING" | "COMPLETED" | "CANCELLED";
   source: "MANUAL" | "NOTIFICATION" | "OPEN_BANKING" | "IMPORTED";
+  
+  // New fields
+  isRecurring: boolean;
+  recurrencePattern?: string;
+  location?: string;
+  notificationHash?: string;
+  aiConfidence?: number;
+  recurringTransactionId?: string;
+
   createdAt: string;
   updatedAt: string;
   account?: Account;
@@ -203,6 +213,16 @@ export interface RecurringTransaction {
   updatedAt: string;
 }
 
+export interface Session {
+  id: string;
+  userId: string;
+  ipAddress: string;
+  userAgent: string;
+  lastActiveAt: string;
+  createdAt: string;
+  isCurrent: boolean;
+}
+
 // === DTOs (Request Bodies) ===
 
 export interface RegisterDto {
@@ -221,7 +241,6 @@ export interface CreateAccountDto {
   name: string;
   type: AccountType;
   initialBalance: number;
-  currency?: string;
   color?: string;
   icon?: string;
   bankCode?: string;
@@ -238,7 +257,7 @@ export interface CreateCategoryDto {
 
 export interface CreateTransactionDto {
   accountId: string;
-  categoryId?: string;
+  categoryId: string; // Made required as per user payload
   type: TransactionType;
   amount: number;
   description: string;
@@ -246,6 +265,10 @@ export interface CreateTransactionDto {
   date: string;
   tags?: string[];
   notes?: string;
+  isRecurring?: boolean;
+  recurrencePattern?: string;
+  source?: "MANUAL" | "NOTIFICATION" | "OPEN_BANKING" | "IMPORTED";
+  status?: "PENDING" | "COMPLETED" | "CANCELLED";
 }
 
 export interface CreateGoalDto {
@@ -296,6 +319,35 @@ export interface CreateRecurringTransactionDto {
   autoCreate?: boolean;
 }
 
+// === STATS ===
+
+export interface CategoryStats {
+  totalTransactions: number;
+  totalAmount: number;
+  averageAmount: number;
+  highestTransaction?: Transaction;
+  monthlyTrend: Array<{
+    month: string; // YYYY-MM
+    amount: number;
+  }>;
+}
+
+export interface TransactionStatsMonthly {
+  period: string; // YYYY-MM-DD
+  income: number;
+  expenses: number;
+  balance: number;
+  transactionCount: number;
+  categoryBreakdown: Array<{
+    name: string;
+    color: string;
+    icon: string;
+    total: number;
+    count: number;
+  }>;
+  recentTransactions: Transaction[];
+}
+
 // === RESPONSES ===
 
 export interface AuthResponse {
@@ -314,11 +366,18 @@ export interface PaginatedResponse<T> {
   };
 }
 
+export interface AccountBalanceSummary {
+  id: string;
+  name: string;
+  type: AccountType;
+  balance: number;
+  color: string;
+  icon: string;
+}
+
 export interface AccountSummaryResponse {
-  total: number;
   totalBalance: number;
-  byType: Record<AccountType, number>;
-  accounts: Account[];
+  accounts: AccountBalanceSummary[];
 }
 
 export interface TransactionSummaryResponse {
@@ -367,6 +426,90 @@ export interface ApiError {
   statusCode: number;
   message: string | string[];
   error: string;
+}
+
+// === DASHBOARD SPECIFIC ===
+
+export interface DashboardAccountSummary {
+  totalBalance: number;
+  activeAccountsCount: number;
+  accounts: Account[];
+}
+
+export interface DashboardMonthStats {
+  income: number;
+  expense: number;
+  balance: number;
+  transactionCount: number;
+  avgDailyExpense: number;
+  comparisonWithLastMonth: {
+    incomeChange: number;
+    expenseChange: number;
+    balanceChange: number;
+  };
+}
+
+export interface DashboardGoalsState {
+  active: Goal[];
+  nearCompletion: Goal[];
+  totalActiveGoals: number;
+}
+
+export interface DashboardBudgetState {
+  items: Array<{
+    id: string;
+    categoryName: string;
+    amount: number;
+    spent: number;
+    percentage: number;
+    status: string;
+    categoryColor: string;
+    categoryIcon: string;
+  }>;
+  overBudget: any[];
+  nearLimit: any[];
+  totalBudgets: number;
+}
+
+export interface UpcomingRecurring {
+  id: string;
+  description: string;
+  type: TransactionType;
+  amount: number;
+  nextOccurrence: string;
+  daysUntil: number;
+  frequency: RecurringFrequency;
+  accountName: string;
+}
+
+export interface ImportantDate {
+  type: string;
+  title: string;
+  date: string;
+  daysUntil: number;
+  referenceId: string;
+}
+
+export interface DashboardInsight {
+  type: "success" | "warning" | "info" | "danger";
+  title: string;
+  message: string;
+  icon: string;
+}
+
+export interface DashboardHomeResponse {
+  accountsSummary: DashboardAccountSummary;
+  currentMonth: DashboardMonthStats;
+  goals: DashboardGoalsState;
+  budgets: DashboardBudgetState;
+  upcomingRecurring: UpcomingRecurring[];
+  notifications: {
+    unreadCount: number;
+    recent: any[];
+  };
+  importantDates: ImportantDate[];
+  insights: DashboardInsight[];
+  generatedAt: string;
 }
 
 // === QUERY PARAMS ===

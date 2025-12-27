@@ -1,34 +1,75 @@
 "use client";
 
+import { useState } from "react";
+import { useDashboard } from "@/hooks/useDashboard";
+import { CreateTransactionModal } from "@/components/transactions/CreateTransactionModal";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { BalanceRing } from "@/components/dashboard/BalanceRing";
-import { TransactionItem } from "@/components/dashboard/TransactionItem";
+import { formatCurrency } from "@/lib/utils";
 import {
   Calendar,
   Plus,
   Wallet,
   ArrowUpRight,
   ArrowDownRight,
+  Loader2,
 } from "lucide-react";
-import {
-  MOCK_USER,
-  MOCK_TRANSACTIONS,
-  CATEGORY_DATA,
-  REPORT_DATA,
-} from "@/lib/constants";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { COLORS } from "@/lib/constants";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
+  const { data, isLoading, refetch } = useDashboard();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-12 gap-6 animate-fade-in-up">
+        <div className="col-span-12 lg:col-span-8 space-y-6">
+          <div className="flex justify-between items-center mb-6">
+            <div className="space-y-2">
+               <Skeleton className="h-8 w-48" />
+               <Skeleton className="h-4 w-64" />
+            </div>
+            <div className="flex gap-2">
+                <Skeleton className="h-9 w-28" />
+                <Skeleton className="h-9 w-36" />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Skeleton className="h-32 w-full rounded-xl" />
+            <Skeleton className="h-32 w-full rounded-xl" />
+            <Skeleton className="h-32 w-full rounded-xl" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+             <Skeleton className="h-64 w-full rounded-xl" />
+             <Skeleton className="h-64 w-full rounded-xl" />
+          </div>
+        </div>
+
+        <div className="col-span-12 lg:col-span-4 space-y-6">
+             <Skeleton className="h-80 w-full rounded-xl" />
+             <Skeleton className="h-64 w-full rounded-xl" />
+        </div>
+      </div>
+    );
+  }
+
+  const {
+    accountsSummary,
+    currentMonth,
+    goals,
+    budgets,
+    upcomingRecurring,
+    insights,
+  } = data || {};
+
+  const totalBalance = accountsSummary?.totalBalance || 0;
+  const totalIncome = currentMonth?.income || 0;
+  const totalExpense = currentMonth?.expense || 0;
+
+
+
   return (
     <div className="grid grid-cols-12 gap-6 animate-fade-in-up">
       {/* Hero Area */}
@@ -42,9 +83,13 @@ export default function DashboardPage() {
           </div>
           <div className="flex gap-2">
             <Button variant="secondary" size="sm" className="bg-white">
-              <Calendar size={16} /> Dezembro
+              <Calendar size={16} /> Mês Atual
             </Button>
-            <Button variant="primary" size="sm">
+            <Button 
+                variant="primary" 
+                size="sm"
+                onClick={() => setIsCreateModalOpen(true)}
+            >
               <Plus size={16} /> Nova Transação
             </Button>
           </div>
@@ -59,12 +104,14 @@ export default function DashboardPage() {
                 <div className="p-2 bg-white/10 rounded-lg">
                   <Wallet size={20} />
                 </div>
-                <span className="text-[#7cddb1] bg-[#7cddb1]/10 px-2 py-0.5 rounded text-xs font-bold">
+                {/* <span className="text-[#7cddb1] bg-[#7cddb1]/10 px-2 py-0.5 rounded text-xs font-bold">
                   +12%
-                </span>
+                </span> */}
               </div>
               <p className="text-[#3c88a0] text-sm">Saldo Total</p>
-              <h3 className="text-2xl font-bold text-white">R$ 48.847,00</h3>
+              <h3 className="text-2xl font-bold text-white">
+                {formatCurrency(totalBalance)}
+              </h3>
             </div>
           </Card>
 
@@ -74,8 +121,10 @@ export default function DashboardPage() {
                 <ArrowUpRight size={20} />
               </div>
             </div>
-            <p className="text-[#00404f]/60 text-sm">Receitas</p>
-            <h3 className="text-2xl font-bold text-[#00404f]">R$ 15.500</h3>
+            <p className="text-[#00404f]/60 text-sm">Receitas (Mês)</p>
+            <h3 className="text-2xl font-bold text-[#00404f]">
+              {formatCurrency(totalIncome)}
+            </h3>
           </Card>
 
           <Card>
@@ -84,137 +133,125 @@ export default function DashboardPage() {
                 <ArrowDownRight size={20} />
               </div>
             </div>
-            <p className="text-[#00404f]/60 text-sm">Despesas</p>
-            <h3 className="text-2xl font-bold text-[#00404f]">R$ 4.200</h3>
+            <p className="text-[#00404f]/60 text-sm">Despesas (Mês)</p>
+            <h3 className="text-2xl font-bold text-[#00404f]">
+              {formatCurrency(totalExpense)}
+            </h3>
           </Card>
         </div>
 
-        {/* Main Chart */}
-        <Card className="min-h-[400px]">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-bold text-[#00404f]">Fluxo de Caixa</h3>
-            <select className="text-xs bg-[#F8FAFC] border border-[#00404f]/10 rounded-lg px-2 py-1 text-[#00404f] outline-none">
-              <option>Últimos 6 meses</option>
-            </select>
-          </div>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={REPORT_DATA}>
-                <defs>
-                  <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="5%"
-                      stopColor={COLORS.success}
-                      stopOpacity={0.2}
+        {/* Insights / Metas (Substituindo Gráfico temporariamente) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card>
+            <h3 className="text-lg font-bold text-[#00404f] mb-4">Insights</h3>
+            <div className="space-y-4">
+              {insights?.map((insight: any, index: number) => (
+                <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                  <span className="text-2xl">{insight.icon}</span>
+                  <div>
+                    <h4 className="font-bold text-sm text-[#00404f]">{insight.title}</h4>
+                    <p className="text-xs text-gray-600">{insight.message}</p>
+                  </div>
+                </div>
+              ))}
+              {(!insights || insights.length === 0) && (
+                <p className="text-sm text-gray-500">Sem insights no momento.</p>
+              )}
+            </div>
+          </Card>
+
+          <Card>
+            <h3 className="text-lg font-bold text-[#00404f] mb-4">Metas Ativas</h3>
+            <div className="space-y-4">
+              {goals?.active?.slice(0, 3).map((goal: any) => (
+                <div key={goal.id} className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium text-[#00404f]">{goal.icon} {goal.name}</span>
+                    <span className="text-gray-500">{goal.progress}%</span>
+                  </div>
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-[#00404f] rounded-full" 
+                      style={{ width: `${goal.progress}%`, backgroundColor: goal.color }}
                     />
-                    <stop
-                      offset="95%"
-                      stopColor={COLORS.success}
-                      stopOpacity={0}
-                    />
-                  </linearGradient>
-                  <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="5%"
-                      stopColor={COLORS.expense}
-                      stopOpacity={0.2}
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor={COLORS.expense}
-                      stopOpacity={0}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  vertical={false}
-                  stroke="#E2E8F0"
-                />
-                <XAxis
-                  dataKey="name"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#64748B", fontSize: 12 }}
-                  dy={10}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#64748B", fontSize: 12 }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#fff",
-                    borderColor: "#E2E8F0",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="receita"
-                  stroke={COLORS.success}
-                  strokeWidth={2}
-                  fill="url(#colorIncome)"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="despesa"
-                  stroke={COLORS.expense}
-                  strokeWidth={2}
-                  fill="url(#colorExpense)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+                  </div>
+                </div>
+              ))}
+               {(!goals?.active || goals.active.length === 0) && (
+                <p className="text-sm text-gray-500">Nenhuma meta ativa.</p>
+              )}
+            </div>
+          </Card>
+        </div>
       </div>
 
       {/* Sidebar Area (Widgets) */}
       <div className="col-span-12 lg:col-span-4 space-y-6">
         <Card className="flex flex-col items-center py-8">
-          <h3 className="text-[#00404f] font-bold mb-4">Orçamento Mensal</h3>
-          <BalanceRing
-            available={MOCK_USER.balance.available}
-            budget={MOCK_USER.balance.budget}
-            used={MOCK_USER.balance.used}
-          />
-          <div className="w-full mt-6 space-y-3 px-2">
-            {CATEGORY_DATA.slice(0, 3).map((cat, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between text-sm"
-              >
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-2 h-2 rounded-full"
-                    style={{ background: cat.color }}
-                  />
-                  <span className="text-[#00404f]/70">{cat.name}</span>
-                </div>
-                <span className="font-semibold text-[#00404f]">
-                  {cat.value}%
-                </span>
-              </div>
-            ))}
+          <h3 className="text-[#00404f] font-bold mb-4">Orçamentos</h3>
+          
+          <div className="w-full space-y-4">
+             {budgets?.items?.slice(0, 4).map((budget: any) => (
+                 <div key={budget.id} className="flex items-center gap-3">
+                     <div className="p-2 rounded-lg bg-gray-100" style={{ color: budget.categoryColor }}>
+                         {budget.categoryIcon}
+                     </div>
+                     <div className="flex-1">
+                         <div className="flex justify-between text-xs mb-1">
+                             <span className="font-medium text-[#00404f]">{budget.categoryName}</span>
+                             <span className="text-gray-500">R$ {budget.amount}</span>
+                         </div>
+                         <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                             <div 
+                                 className="h-full rounded-full" 
+                                 style={{ width: `${Math.min(budget.percentage, 100)}%`, backgroundColor: budget.categoryColor }}
+                             />
+                         </div>
+                     </div>
+                 </div>
+             ))}
+             {(!budgets?.items || budgets.items.length === 0) && (
+                <p className="text-sm text-center text-gray-500">Nenhum orçamento definido.</p>
+             )}
           </div>
         </Card>
 
         <Card>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-bold text-[#00404f]">Últimas Transações</h3>
-            <button className="text-[#3c88a0] text-xs hover:underline">
-              Ver tudo
-            </button>
+            <h3 className="font-bold text-[#00404f]">Próximos Recorrentes</h3>
           </div>
           <div className="space-y-3">
-            {MOCK_TRANSACTIONS.slice(0, 4).map((tx) => (
-              <TransactionItem key={tx.id} data={tx} />
-            ))}
+            {upcomingRecurring && upcomingRecurring.length > 0 ? (
+              upcomingRecurring.map((item: any) => (
+                <div key={item.id} className="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                  <div className="flex items-center gap-3">
+                     <div className="p-2 bg-blue-100/50 text-blue-600 rounded-lg">
+                        <Calendar size={16} />
+                     </div>
+                     <div>
+                       <p className="text-sm font-medium text-[#00404f]">{item.description}</p>
+                       <p className="text-xs text-gray-500">Vence em {item.daysUntil} dias</p>
+                     </div>
+                  </div>
+                  <span className={`text-sm font-bold ${item.type === 'EXPENSE' ? 'text-red-500' : 'text-green-500'}`}>
+                    {item.type === 'EXPENSE' ? '-' : '+'} {formatCurrency(item.amount)}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500 text-center py-4">
+                Nenhuma conta próxima.
+              </p>
+            )}
           </div>
         </Card>
       </div>
+      
+      <CreateTransactionModal 
+        isOpen={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)} 
+        onSuccess={() => refetch()}
+      />
     </div>
   );
 }

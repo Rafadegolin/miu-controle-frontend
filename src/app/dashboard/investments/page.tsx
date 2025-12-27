@@ -49,7 +49,7 @@ export default function InvestmentsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {MOCK_INVESTMENTS.map((inv) => (
-          <Card key={inv.id} hover>
+          <Card key={inv.id}>
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-3">
                 <div

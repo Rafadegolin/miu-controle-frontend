@@ -1,65 +1,64 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/api";
-import type { Account, CreateAccountDto } from "@/types/api";
+import { CreateAccountDto, AccountFilters } from "@/types/api";
 
-export function useAccounts(isActive?: boolean) {
-  return useQuery({
-    queryKey: ["accounts", isActive],
-    queryFn: () => api.getAccounts(isActive),
-  });
-}
-
-export function useAccount(id: string) {
-  return useQuery({
-    queryKey: ["accounts", id],
-    queryFn: () => api.getAccount(id),
-    enabled: !!id,
-  });
-}
-
-export function useAccountsSummary() {
-  return useQuery({
-    queryKey: ["accounts", "summary"],
-    queryFn: () => api.getAccountsSummary(),
-  });
-}
-
-export function useCreateAccount() {
+export function useAccounts(activeOnly: boolean = true) {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  const accountsQuery = useQuery({
+    queryKey: ["accounts", { activeOnly }],
+    queryFn: () => api.getAccounts(activeOnly),
+  });
+
+  const accountsSummaryQuery = useQuery({
+    queryKey: ["accounts-summary"],
+    queryFn: () => api.getAccountsSummary(),
+  });
+
+  const createAccountMutation = useMutation({
     mutationFn: (data: CreateAccountDto) => api.createAccount(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      queryClient.invalidateQueries({ queryKey: ["accounts-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-home"] });
     },
   });
-}
 
-export function useUpdateAccount() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: Partial<CreateAccountDto>;
-    }) => api.updateAccount(id, data),
-    onSuccess: (_, variables) => {
+  const updateAccountMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<CreateAccountDto> }) =>
+      api.updateAccount(id, data),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      queryClient.invalidateQueries({ queryKey: ["accounts", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["accounts-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-home"] });
     },
   });
-}
 
-export function useDeleteAccount() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
+  const deleteAccountMutation = useMutation({
     mutationFn: (id: string) => api.deleteAccount(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      queryClient.invalidateQueries({ queryKey: ["accounts-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-home"] });
     },
   });
+
+  return {
+    accounts: accountsQuery.data || [],
+    isLoadingAccounts: accountsQuery.isLoading,
+    isErrorAccounts: accountsQuery.isError,
+    refetchAccounts: accountsQuery.refetch,
+
+    summary: accountsSummaryQuery.data,
+    isLoadingSummary: accountsSummaryQuery.isLoading,
+
+    createAccount: createAccountMutation.mutateAsync,
+    isCreatingAccount: createAccountMutation.isPending,
+
+    updateAccount: updateAccountMutation.mutateAsync,
+    isUpdatingAccount: updateAccountMutation.isPending,
+
+    deleteAccount: deleteAccountMutation.mutateAsync,
+    isDeletingAccount: deleteAccountMutation.isPending,
+  };
 }

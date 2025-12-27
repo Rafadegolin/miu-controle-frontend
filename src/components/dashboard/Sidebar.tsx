@@ -15,6 +15,7 @@ import {
   LogOut,
   X,
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -39,6 +40,18 @@ const menuItems = [
     icon: PieChart,
     label: "Relatórios",
     href: "/dashboard/reports",
+  },
+  {
+    id: "categories",
+    icon: PieChart, 
+    label: "Categorias",
+    href: "/dashboard/categories",
+  },
+  {
+    id: "accounts",
+    icon: Wallet,
+    label: "Minhas Contas",
+    href: "/dashboard/accounts",
   },
   { id: "goals", icon: Target, label: "Metas", href: "/dashboard/goals" },
   {
@@ -132,17 +145,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* User Footer */}
       <div className="p-4 border-t border-[#00404f]/5">
         <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-[#00404f]/5 cursor-pointer transition-colors">
-          <img
-            src={
-              user?.avatar ||
-              "https://api.dicebear.com/7.x/avataaars/svg?seed=User"
-            }
-            alt="User"
-            className="w-9 h-9 rounded-full bg-[#00404f]/10"
-          />
+          <Avatar className="w-9 h-9 border border-[#00404f]/10 shadow-sm">
+            <AvatarImage src={user?.avatarUrl} alt={user?.fullName || "User"} />
+            <AvatarFallback className="bg-[#00404f]/10 text-[#00404f] font-bold text-xs">
+              {(user?.fullName || "U").charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold truncate">
-              {user?.name || "Usuário"}
+              {user?.fullName || "Usuário"}
             </p>
             <p className="text-xs text-[#00404f]/50 truncate">Pro Member</p>
           </div>

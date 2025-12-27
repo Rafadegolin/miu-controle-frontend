@@ -3,15 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -22,13 +26,13 @@ export default function LoginPage() {
 
     try {
       await login({ email, password });
+      toast.success("Bem-vindo de volta!");
       router.push("/dashboard");
     } catch (err: any) {
       console.error("Login error:", err);
-      setError(
-        err.response?.data?.message ||
-          "Erro ao fazer login. Verifique suas credenciais."
-      );
+      const msg = err.response?.data?.message || "Erro ao fazer login. Verifique suas credenciais.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -73,14 +77,31 @@ export default function LoginPage() {
             <label className="block text-xs font-bold text-[#00404f]/60 uppercase mb-1">
               Senha
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 rounded-lg border border-[#00404f]/10 bg-[#F8FAFC] outline-none focus:border-[#3c88a0] transition-colors"
-              placeholder="••••••••"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-3 rounded-lg border border-[#00404f]/10 bg-[#F8FAFC] outline-none focus:border-[#3c88a0] transition-colors pr-10"
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#00404f]/40 hover:text-[#00404f] transition-colors"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            <div className="flex justify-end mt-1">
+              <Link
+                href="/forgot-password"
+                className="text-xs text-[#00404f]/60 hover:text-[#00404f] transition-colors"
+              >
+                Esqueceu sua senha?
+              </Link>
+            </div>
           </div>
           <Button
             type="submit"

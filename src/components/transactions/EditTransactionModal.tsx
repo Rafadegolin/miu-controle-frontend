@@ -1,0 +1,362 @@
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import * as LucideIcons from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/Button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import api from "@/services/api";
+import { Account, Category, Transaction, TransactionType } from "@/types/api";
+
+// Helper to render dynamic Lucide icons
+const DynamicIcon = ({ name, size = 16 }: { name: string; size?: number }) => {
+  const Icon = (LucideIcons as any)[name];
+  return Icon ? <Icon size={size} /> : <span>{name}</span>;
+};
+
+const formSchema = z.object({
+  description: z.string().min(3, "Descrição deve ter pelo menos 3 caracteres"),
+  amount: z.coerce.number().min(0.01, "Valor deve ser maior que zero"),
+  date: z.date(),
+  categoryId: z.string().min(1, "Selecione uma categoria"),
+  accountId: z.string().min(1, "Selecione uma conta"),
+  type: z.enum([TransactionType.INCOME, TransactionType.EXPENSE]),
+  notes: z.string().optional(),
+  tags: z.string().optional(),
+  isRecurring: z.boolean().default(false),
+  recurrencePattern: z.string().optional(),
+  merchant: z.string().optional(),
+});
+
+interface EditTransactionModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  transaction: Transaction | null;
+}
+
+export function EditTransactionModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  transaction,
+}: EditTransactionModalProps) {
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema) as any,
+    defaultValues: {
+      description: "",
+      amount: 0,
+      date: new Date(),
+      categoryId: "",
+      accountId: "",
+      type: TransactionType.EXPENSE,
+      notes: "",
+      tags: "",
+      isRecurring: false,
+      merchant: "",
+    },
+  });
+
+  const transactionType = form.watch("type");
+
+  useEffect(() => {
+    if (isOpen && transaction) {
+      loadData();
+      // Extract date part only (YYYY-MM-DD) to avoid timezone issues
+      const dateOnly = transaction.date.split('T')[0];
+      
+      // Populate form with transaction data
+      form.reset({
+        description: transaction.description,
+        amount: Number(transaction.amount),
+        date: parseISO(dateOnly), // Now parse just the date part
+        categoryId: transaction.categoryId,
+        accountId: transaction.accountId,
+        type: transaction.type,
+        notes: transaction.notes || "",
+        tags: transaction.tags?.join(", ") || "",
+        isRecurring: transaction.isRecurring,
+        recurrencePattern: transaction.recurrencePattern || "",
+        merchant: transaction.merchant || "",
+      });
+    }
+  }, [isOpen, transaction]);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const [accountsData, categoriesData] = await Promise.all([
+        api.getAccounts(true),
+        api.getCategories(),
+      ]);
+      setAccounts(accountsData);
+      setCategories(categoriesData);
+    } catch (error) {
+      console.error("Failed to load data", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!transaction) return;
+    
+    setIsSubmitting(true);
+    try {
+      const tagsArray = values.tags
+        ? values.tags.split(",").map((t) => t.trim()).filter(Boolean)
+        : [];
+
+      await api.updateTransaction(transaction.id, {
+        ...values,
+        date: format(values.date, "yyyy-MM-dd"),
+        tags: tagsArray,
+        source: "MANUAL" as const,
+        status: transaction.status,
+      });
+
+      onSuccess();
+      onClose();
+    } catch (error) {
+      console.error("Failed to update transaction", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const filteredCategories = categories.filter(
+    (c) => c.type === (transactionType as unknown as string)
+  );
+
+  if (!transaction) return null;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>Editar Transação</DialogTitle>
+        </DialogHeader>
+
+        {isLoading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="animate-spin text-gray-400" />
+          </div>
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <Tabs
+                value={transactionType}
+                onValueChange={(v) =>
+                  form.setValue("type", v as TransactionType)
+                }
+                className="w-full"
+              >
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value={TransactionType.EXPENSE}>
+                    Despesa
+                  </TabsTrigger>
+                  <TabsTrigger value={TransactionType.INCOME}>
+                    Receita
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Valor</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="0,00"
+                          {...field}
+                          className="text-lg font-bold"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP", { locale: ptBR })
+                              ) : (
+                                <span>Selecione uma data</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Descrição</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex: Almoço, Salário..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="categoryId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Categoria</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {filteredCategories.map((category) => (
+                            <SelectItem key={category.id} value={category.id}>
+                              <span className="flex items-center gap-2">
+                                <DynamicIcon name={category.icon || ""} size={16} />
+                                {category.name}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="accountId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Conta</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {accounts.map((account) => (
+                            <SelectItem key={account.id} value={account.id}>
+                              <span className="flex items-center gap-2">
+                                {account.name}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={onClose}
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Salvar Alterações
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}

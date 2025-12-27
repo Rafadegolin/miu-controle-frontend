@@ -20,7 +20,7 @@ export default function GoalsPage() {
           const progress = (goal.current / goal.target) * 100;
 
           return (
-            <Card key={goal.id} hover>
+            <Card key={goal.id}>
               <div className="flex items-center gap-3 mb-4">
                 <div className="text-4xl">{goal.icon}</div>
                 <div className="flex-1">

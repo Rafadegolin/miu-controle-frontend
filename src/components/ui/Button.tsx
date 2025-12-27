@@ -1,71 +1,64 @@
-"use client";
+import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cva, type VariantProps } from "class-variance-authority"
 
-import { ButtonHTMLAttributes, ReactNode } from "react";
-import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
-interface ButtonProps
-  extends Omit<
-    ButtonHTMLAttributes<HTMLButtonElement>,
-    | "onDrag"
-    | "onDragEnd"
-    | "onDragStart"
-    | "onAnimationStart"
-    | "onAnimationEnd"
-  > {
-  children: ReactNode;
-  variant?:
-    | "primary"
-    | "secondary"
-    | "ghost"
-    | "mint"
-    | "outline"
-    | "landingPrimary"
-    | "landingSecondary";
-  size?: "sm" | "md" | "lg";
-}
+const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        primary: "bg-[#00404f] text-white hover:bg-[#00404f]/90",
+        destructive:
+          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+        outline:
+          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost:
+          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+        link: "text-primary underline-offset-4 hover:underline",
+        mint: "bg-[#7cddb1] text-[#00404f] hover:bg-[#7cddb1]/90",
+      },
+      size: {
+        default: "h-9 px-4 py-2 has-[>svg]:px-3",
+        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
+        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        icon: "size-9",
+        "icon-sm": "size-8",
+        "icon-lg": "size-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
 
-export function Button({
-  children,
-  variant = "primary",
-  size = "md",
-  className = "",
+function Button({
+  className,
+  variant = "default",
+  size = "default",
+  asChild = false,
   ...props
-}: ButtonProps) {
-  const sizes = {
-    sm: "px-3 py-1.5 text-xs",
-    md: "px-6 py-3 text-sm",
-    lg: "px-8 py-4 text-base",
-  };
-
-  const variants = {
-    primary:
-      "bg-[#00404f] hover:bg-[#3c88a0] text-white shadow-lg hover:shadow-[#3c88a0]/30 active:scale-95 transition-all duration-200 border border-[#00404f]/20",
-    secondary:
-      "bg-white text-[#00404f] border border-[#00404f]/10 hover:border-[#00404f]/30 hover:bg-[#00404f]/5 shadow-sm active:scale-95",
-    ghost:
-      "text-[#00404f]/70 hover:bg-[#00404f]/5 hover:text-[#00404f] active:scale-95",
-    mint: "bg-[#7cddb1] hover:bg-[#007459] text-[#00404f] font-bold hover:text-white shadow-lg hover:shadow-[#7cddb1]/30 active:scale-95 transition-all duration-200",
-    outline:
-      "border-2 border-[#00404f]/20 text-[#00404f] hover:border-[#00404f] hover:bg-[#00404f]/5 active:scale-95",
-    landingPrimary:
-      "bg-linear-to-r from-[#3c88a0] to-[#7cddb1] text-white font-bold shadow-[0_8px_32px_rgba(124,221,177,0.4)] hover:shadow-[0_12px_48px_rgba(124,221,177,0.6)] hover:-translate-y-1 active:translate-y-0 transition-all border-none",
-    landingSecondary:
-      "bg-white/10 backdrop-blur-md border border-[#7cddb1]/30 text-white hover:bg-white/20 hover:border-[#7cddb1] active:scale-95 transition-all",
-  };
+}: React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean
+  }) {
+  const Comp = asChild ? Slot : "button"
 
   return (
-    <motion.button
-      whileTap={{ scale: 0.98 }}
-      className={cn(
-        "font-semibold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer",
-        sizes[size],
-        variants[variant],
-        className
-      )}
+    <Comp
+      data-slot="button"
+      data-variant={variant}
+      data-size={size}
+      className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-    >
-      {children}
-    </motion.button>
-  );
+    />
+  )
 }
+
+export { Button, buttonVariants }
