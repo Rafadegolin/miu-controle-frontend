@@ -28,7 +28,7 @@ export function DeleteAccountModal() {
   if (!isOpen) {
     return (
       <Button
-        variant="danger"
+        variant="destructive"
         onClick={() => setIsOpen(true)}
         className="w-full md:w-auto flex items-center justify-center gap-2 bg-red-50 text-red-600 hover:bg-red-100 border-red-200"
       >
@@ -79,7 +79,7 @@ export function DeleteAccountModal() {
             Cancelar
           </Button>
           <Button
-            variant="danger"
+            variant="destructive"
             onClick={handleDelete}
             disabled={isDeletingAccount || confirmation !== CONFIRMATION_TEXT}
             className="bg-red-600 text-white hover:bg-red-700"
