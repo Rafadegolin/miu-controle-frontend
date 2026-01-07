@@ -26,7 +26,7 @@ export function CategoryList({ categories, onEdit, onDelete, isDeleting }: Categ
 
     return (
         <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {categories.map((category) => {
                     // Try to resolve by icon field first, then by name, then fallback
                     const Icon = resolveCategoryIcon(category.icon) || 
@@ -34,30 +34,42 @@ export function CategoryList({ categories, onEdit, onDelete, isDeleting }: Categ
                                  AlertCircle;
                     
                     return (
-                        <Card key={category.id} className="p-4 flex items-center gap-4 group hover:shadow-md transition-all border-[#00404f]/10">
+                         <div 
+                            key={category.id} 
+                            className="relative overflow-hidden group hover:translate-y-[-4px] transition-all duration-300 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-5 flex items-center gap-4"
+                        >
+                             {/* Color Accent Indicator */}
                             <div 
-                                className="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-sm flex-shrink-0"
-                                style={{ backgroundColor: category.color || "#00404f" }}
+                                className="absolute top-0 left-0 w-1 h-full opacity-60 group-hover:opacity-100 transition-opacity"
+                                style={{ backgroundColor: category.color || "#32d6a5" }}
+                            />
+
+                            <div 
+                                className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg bg-white/10 shrink-0"
+                                style={{ 
+                                    backgroundColor: category.color ? `${category.color}20` : '#32d6a520',
+                                    color: category.color || '#32d6a5'
+                                }}
                             >
                                 <Icon size={24} />
                             </div>
                             
                             <div className="flex-1 min-w-0">
-                                <h4 className="font-bold text-[#00404f] text-lg truncate">{category.name}</h4>
-                                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                                    {category.isSystem ? "Sistema" : "Personalizada"}
+                                <h4 className="font-bold text-white text-lg truncate group-hover:text-[#32d6a5] transition-colors">{category.name}</h4>
+                                <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">
+                                    {category.isSystem ? "Sistema" : "Manual"}
                                 </p>
                             </div>
 
-                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 bg-[#06181b]/90 rounded-lg p-1 border border-white/10 shadow-xl backdrop-blur-md">
                                 <Button 
                                     variant="ghost" 
                                     size="icon-sm" 
-                                    className="text-blue-600 hover:bg-blue-50"
+                                    className="text-blue-400 hover:bg-blue-400/10 hover:text-blue-300 h-8 w-8"
                                     onClick={() => setStatsCategory(category)}
                                     title="Estatísticas"
                                 >
-                                    <BarChart2 size={18} />
+                                    <BarChart2 size={16} />
                                 </Button>
                                 
                                 {!category.isSystem && (
@@ -65,24 +77,24 @@ export function CategoryList({ categories, onEdit, onDelete, isDeleting }: Categ
                                         <Button 
                                             variant="ghost" 
                                             size="icon-sm" 
-                                            className="text-[#00404f] hover:bg-[#00404f]/10"
+                                            className="text-white hover:bg-white/10 h-8 w-8"
                                             onClick={() => onEdit(category)}
                                         >
-                                            <Edit2 size={18} />
+                                            <Edit2 size={16} />
                                         </Button>
                                         <Button 
                                             variant="ghost" 
                                             size="icon-sm" 
-                                            className="text-red-500 hover:bg-red-50"
+                                            className="text-red-400 hover:bg-red-400/10 hover:text-red-300 h-8 w-8"
                                             onClick={() => onDelete(category.id)}
                                             disabled={isDeleting}
                                         >
-                                            <Trash2 size={18} />
+                                            <Trash2 size={16} />
                                         </Button>
                                     </>
                                 )}
                             </div>
-                        </Card>
+                        </div>
                     );
                 })}
             </div>

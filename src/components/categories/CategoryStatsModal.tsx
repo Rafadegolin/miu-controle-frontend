@@ -59,86 +59,94 @@ export function CategoryStatsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[650px] bg-[#06181b] border border-white/10 text-white shadow-2xl shadow-black/50">
         <DialogHeader>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <div
-              className="w-10 h-10 rounded-full flex items-center justify-center text-white"
-              style={{ backgroundColor: category.color || "#00404f" }}
+              className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg ring-1 ring-white/10"
+              style={{ backgroundColor: category.color || "#06181b" }}
             >
-              {Icon && <Icon size={20} />}
+              {Icon && <Icon size={24} />}
             </div>
-            <DialogTitle className="text-xl">
-              Estatísticas: {category.name}
-            </DialogTitle>
+            <div>
+                 <DialogTitle className="text-xl font-bold text-white">
+                    {category.name}
+                </DialogTitle>
+                 <p className="text-sm text-gray-400">Análise de histórico</p>
+            </div>
+           
           </div>
         </DialogHeader>
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-10 text-gray-400">
-            <Loader2 className="w-8 h-8 animate-spin mb-2" />
+          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+            <Loader2 className="w-10 h-10 animate-spin mb-3 text-[#32d6a5]" />
             <p>Carregando estatísticas...</p>
           </div>
         ) : stats ? (
-          <div className="space-y-6 py-4">
+          <div className="space-y-8 py-4">
             <div className="grid grid-cols-3 gap-4">
-              <Card className="p-4 bg-blue-50 border-blue-100 dark:bg-blue-900/20 dark:border-blue-800">
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
                 <div className="flex flex-col">
-                  <span className="text-xs text-blue-600 dark:text-blue-400 font-medium uppercase flex items-center gap-1">
-                    <DollarSign size={12} /> Total Gasto
+                  <span className="text-xs text-blue-300 font-medium uppercase flex items-center gap-1 mb-2">
+                    <DollarSign size={14} className="text-blue-400" /> Total
                   </span>
-                  <span className="text-lg font-bold text-blue-900 dark:text-blue-100 mt-1">
+                  <span className="text-lg font-bold text-white">
                     {new Intl.NumberFormat("pt-BR", {
                       style: "currency",
                       currency: "BRL",
                     }).format(stats.totalAmount)}
                   </span>
                 </div>
-              </Card>
+              </div>
 
-              <Card className="p-4 bg-purple-50 border-purple-100 dark:bg-purple-900/20 dark:border-purple-800">
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
                 <div className="flex flex-col">
-                  <span className="text-xs text-purple-600 dark:text-purple-400 font-medium uppercase flex items-center gap-1">
-                    <Activity size={12} /> Transações
+                  <span className="text-xs text-purple-300 font-medium uppercase flex items-center gap-1 mb-2">
+                    <Activity size={14} className="text-purple-400" /> Transações
                   </span>
-                  <span className="text-lg font-bold text-purple-900 dark:text-purple-100 mt-1">
+                  <span className="text-lg font-bold text-white">
                     {stats.totalTransactions}
                   </span>
                 </div>
-              </Card>
+              </div>
 
-              <Card className="p-4 bg-green-50 border-green-100 dark:bg-green-900/20 dark:border-green-800">
+               <div className="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
                 <div className="flex flex-col">
-                  <span className="text-xs text-green-600 dark:text-green-400 font-medium uppercase flex items-center gap-1">
-                    <TrendingUp size={12} /> Média
+                  <span className="text-xs text-[#32d6a5] font-medium uppercase flex items-center gap-1 mb-2">
+                    <TrendingUp size={14} /> Média
                   </span>
-                  <span className="text-lg font-bold text-green-900 dark:text-green-100 mt-1">
+                  <span className="text-lg font-bold text-white">
                     {new Intl.NumberFormat("pt-BR", {
                       style: "currency",
                       currency: "BRL",
                     }).format(stats.averageAmount)}
                   </span>
                 </div>
-              </Card>
+              </div>
             </div>
 
-            <div className="h-[250px] w-full">
-              <h4 className="text-sm font-medium mb-4 text-gray-500">
+            <div className="h-[300px] w-full bg-white/5 rounded-xl border border-white/10 p-4">
+              <h4 className="text-sm font-medium mb-6 text-gray-400 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[#32d6a5]" />
                 Histórico Mensal
               </h4>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.monthlyTrend}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <ResponsiveContainer width="100%" height="85%">
+                <BarChart data={stats.monthlyTrend} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff10" />
                   <XAxis
                     dataKey="month"
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
+                    stroke="#9ca3af"
+                    dy={10}
                   />
                   <YAxis
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
+                    stroke="#9ca3af"
                     tickFormatter={(value) =>
                       new Intl.NumberFormat("pt-BR", {
                         notation: "compact",
@@ -147,8 +155,15 @@ export function CategoryStatsModal({
                     }
                   />
                   <Tooltip
-                    cursor={{ fill: "transparent" }}
-                    contentStyle={{ borderRadius: "8px" }}
+                    cursor={{ fill: "#ffffff05" }}
+                    contentStyle={{ 
+                        backgroundColor: "#06181b", 
+                        border: "1px solid rgba(255,255,255,0.1)", 
+                        borderRadius: "12px",
+                        boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.5)",
+                        color: "#fff"
+                    }}
+                    itemStyle={{ color: "#fff" }}
                     formatter={(value: number) => [
                       new Intl.NumberFormat("pt-BR", {
                         style: "currency",
@@ -159,15 +174,17 @@ export function CategoryStatsModal({
                   />
                   <Bar
                     dataKey="amount"
-                    fill={category.color || "#00404f"}
+                    fill={category.color || "#32d6a5"}
                     radius={[4, 4, 0, 0]}
+                    maxBarSize={50}
+                    className="opacity-90 hover:opacity-100 transition-opacity"
                   />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-20 text-gray-500">
             Não foi possível carregar os dados.
           </div>
         )}

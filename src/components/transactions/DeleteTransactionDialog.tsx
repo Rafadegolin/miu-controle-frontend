@@ -32,29 +32,29 @@ export function DeleteTransactionDialog({
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent>
+      <AlertDialogContent className="bg-[#06181b] border border-white/10 text-white">
         <AlertDialogHeader>
-          <AlertDialogTitle>Excluir Transação?</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogTitle className="text-white">Excluir Transação?</AlertDialogTitle>
+          <AlertDialogDescription className="text-gray-400">
             Esta ação não pode ser desfeita. A transação será removida permanentemente.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="my-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <div className="space-y-2 text-sm">
+        <div className="my-4 p-4 bg-red-400/5 rounded-lg border border-red-400/20">
+          <div className="space-y-2 text-sm text-gray-300">
             <div>
-              <span className="font-semibold text-gray-700">Descrição: </span>
-              <span className="text-gray-900">{transaction.description}</span>
+              <span className="font-semibold text-red-300">Descrição: </span>
+              <span>{transaction.description}</span>
             </div>
             <div>
-              <span className="font-semibold text-gray-700">Valor: </span>
-              <span className="text-gray-900">
+              <span className="font-semibold text-red-300">Valor: </span>
+              <span>
                 {formatCurrency(Number(transaction.amount))}
               </span>
             </div>
             <div>
-              <span className="font-semibold text-gray-700">Data: </span>
-              <span className="text-gray-900">
+              <span className="font-semibold text-red-300">Data: </span>
+              <span>
                 {format(parseISO(transaction.date), "dd 'de' MMMM 'de' yyyy", {
                   locale: ptBR,
                 })}
@@ -62,19 +62,24 @@ export function DeleteTransactionDialog({
             </div>
             {transaction.category && (
               <div>
-                <span className="font-semibold text-gray-700">Categoria: </span>
-                <span className="text-gray-900">{transaction.category.name}</span>
+                <span className="font-semibold text-red-300">Categoria: </span>
+                <span>{transaction.category.name}</span>
               </div>
             )}
           </div>
         </div>
 
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel 
+            disabled={isDeleting}
+            className="bg-transparent border border-white/10 text-gray-400 hover:bg-white/5 hover:text-white"
+          >
+            Cancelar
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isDeleting}
-            className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            className="bg-red-500 hover:bg-red-600 text-white border-0"
           >
             {isDeleting ? "Excluindo..." : "Excluir"}
           </AlertDialogAction>

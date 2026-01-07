@@ -30,7 +30,7 @@ export function DeleteAccountModal() {
       <Button
         variant="destructive"
         onClick={() => setIsOpen(true)}
-        className="w-full md:w-auto flex items-center justify-center gap-2 bg-red-50 text-red-600 hover:bg-red-100 border-red-200"
+        className="w-full md:w-auto flex items-center justify-center gap-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 transition-all font-bold"
       >
         <Trash2 size={16} />
         Excluir minha conta
@@ -39,20 +39,23 @@ export function DeleteAccountModal() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4 animate-scale-in">
-        <div className="flex items-center gap-3 text-red-600 mb-2">
-          <div className="p-3 bg-red-100 rounded-full">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+      <div className="bg-[#06181b] rounded-2xl border border-white/10 shadow-2xl max-w-md w-full p-6 space-y-6 animate-scale-in relative overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-3xl -mr-8 -mt-8 pointer-events-none"></div>
+
+        <div className="flex items-center gap-4 text-red-500 mb-2 relative z-10">
+          <div className="p-3 bg-red-500/10 rounded-xl border border-red-500/20">
             <AlertTriangle size={24} />
           </div>
-          <h3 className="text-xl font-bold">Excluir Conta</h3>
+          <h3 className="text-xl font-bold text-white">Excluir Conta</h3>
         </div>
 
-        <p className="text-gray-600 text-sm">
+        <p className="text-gray-400 text-sm leading-relaxed">
           Esta ação é irreversível. Todos os seus dados, transações, metas e configurações serão apagados permanentemente.
         </p>
 
-        <div className="bg-red-50 p-3 rounded-lg border border-red-100 text-xs text-red-800">
+        <div className="bg-red-500/5 p-4 rounded-xl border border-red-500/10 text-xs text-red-400">
           Para confirmar, digite <strong>{CONFIRMATION_TEXT}</strong> no campo abaixo.
         </div>
 
@@ -61,10 +64,10 @@ export function DeleteAccountModal() {
           value={confirmation}
           onChange={(e) => setConfirmation(e.target.value)}
           placeholder="Digite DELETAR"
-          className="w-full p-3 border border-gray-300 rounded-lg focus:border-red-500 outline-none transition-colors"
+          className="w-full p-3 bg-[#020809] border border-white/10 rounded-xl text-white focus:border-red-500 outline-none transition-colors placeholder:text-gray-600"
         />
 
-        {error && <p className="text-red-600 text-xs">{error}</p>}
+        {error && <p className="text-red-500 text-xs font-bold">{error}</p>}
 
         <div className="flex gap-3 justify-end mt-4">
           <Button
@@ -75,6 +78,7 @@ export function DeleteAccountModal() {
               setError("");
             }}
             disabled={isDeletingAccount}
+            className="text-gray-400 hover:text-white hover:bg-white/5"
           >
             Cancelar
           </Button>
@@ -82,7 +86,7 @@ export function DeleteAccountModal() {
             variant="destructive"
             onClick={handleDelete}
             disabled={isDeletingAccount || confirmation !== CONFIRMATION_TEXT}
-            className="bg-red-600 text-white hover:bg-red-700"
+            className="bg-red-600 text-white hover:bg-red-700 font-bold border-0"
           >
             {isDeletingAccount ? "Excluindo..." : "Sim, excluir tudo"}
           </Button>

@@ -1,5 +1,4 @@
 import { Account, AccountType } from "@/types/api";
-import { Card } from "@/components/ui/Card";
 import { formatCurrency } from "@/lib/utils";
 import { CreditCard, Landmark, Wallet, TrendingUp, MoreVertical, Edit, Trash2 } from "lucide-react";
 import {
@@ -8,7 +7,6 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/Button";
 
 interface AccountCardProps {
     account: Account;
@@ -47,61 +45,68 @@ const getAccountTypeLabel = (type: AccountType) => {
 
 export function AccountCard({ account, onEdit, onDelete }: AccountCardProps) {
     return (
-        <Card className="relative overflow-hidden group hover:shadow-lg transition-shadow">
-            {/* Color Accent */}
+        <div className="relative overflow-hidden group hover:translate-y-[-4px] transition-all duration-300 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+            {/* Color Accent Indicator */}
             <div 
-                className="absolute top-0 left-0 w-1.5 h-full opacity-80"
-                style={{ backgroundColor: account.color || "#00404f" }}
+                className="absolute top-0 left-0 w-1.5 h-full opacity-60 group-hover:opacity-100 transition-opacity settings-color-bar"
+                style={{ backgroundColor: account.color || "#32d6a5" }}
             />
             
-            <div className="flex justify-between items-start pl-3">
-                <div className="flex items-center gap-3">
-                    <div 
-                        className="p-2.5 rounded-xl text-white shadow-sm"
-                        style={{ backgroundColor: account.color || "#00404f" }}
-                    >
-                        {getAccountIcon(account.type)}
+            <div className="p-5">
+                <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-3">
+                        <div 
+                            className="p-3 rounded-xl text-white shadow-lg bg-white/10"
+                            style={{ 
+                                backgroundColor: account.color ? `${account.color}20` : '#32d6a520', 
+                                color: account.color || '#32d6a5' 
+                            }}
+                        >
+                            {getAccountIcon(account.type)}
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-lg text-white group-hover:text-[#32d6a5] transition-colors">
+                                {account.name}
+                            </h4>
+                            <p className="text-xs text-gray-400 font-medium">
+                                {getAccountTypeLabel(account.type)}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h4 className="font-bold text-[#00404f]">{account.name}</h4>
-                        <p className="text-xs text-[#00404f]/60 font-medium">
-                            {getAccountTypeLabel(account.type)}
-                        </p>
-                    </div>
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <button className="h-8 w-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none">
+                                <MoreVertical size={16} />
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-[#06181b] border border-white/10 text-white shadow-xl">
+                            <DropdownMenuItem onClick={() => onEdit(account)} className="cursor-pointer gap-2 focus:bg-white/10 focus:text-white">
+                                <Edit size={14} /> Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                                onClick={() => onDelete(account.id)} 
+                                className="cursor-pointer gap-2 text-red-400 focus:text-red-400 focus:bg-red-400/10"
+                            >
+                                <Trash2 size={14} /> Excluir
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
 
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon-sm" className="h-8 w-8 text-[#00404f]/40 hover:text-[#00404f]">
-                            <MoreVertical size={16} />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onEdit(account)} className="cursor-pointer gap-2">
-                            <Edit size={14} /> Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                            onClick={() => onDelete(account.id)} 
-                            className="cursor-pointer gap-2 text-red-600 focus:text-red-600"
-                        >
-                            <Trash2 size={14} /> Excluir
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-
-            <div className="mt-4 pl-3">
-                 <p className="text-[#00404f]/60 text-xs mb-1 uppercase font-bold tracking-wider">Saldo Atual</p>
-                 <h3 className={`text-2xl font-bold ${Number(account.currentBalance) < 0 ? 'text-red-500' : 'text-[#00404f]'}`}>
-                    {formatCurrency(Number(account.currentBalance))}
-                 </h3>
+                <div className="mt-6">
+                     <p className="text-gray-500 text-xs mb-1 uppercase font-bold tracking-wider">Saldo Atual</p>
+                     <h3 className={`text-2xl font-bold ${Number(account.currentBalance) < 0 ? 'text-red-400' : 'text-white'}`}>
+                        {formatCurrency(Number(account.currentBalance))}
+                     </h3>
+                </div>
             </div>
             
             {/* Background decoration */}
             <div 
-                className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full opacity-5 pointer-events-none"
-                style={{ backgroundColor: account.color || "#00404f" }}
+                className="absolute -right-6 -bottom-6 w-32 h-32 rounded-full opacity-5 pointer-events-none blur-2xl"
+                style={{ backgroundColor: account.color || "#32d6a5" }}
             />
-        </Card>
+        </div>
     );
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { AnimatePresence, motion } from "framer-motion";
 import { 
     Search, 
     Filter, 
@@ -12,7 +13,8 @@ import {
     Loader2
 } from "lucide-react";
 
-import { Card } from "@/components/ui/Card";
+import styles from "@/components/dashboard/styles/Dashboard.module.css";
+
 import { Button } from "@/components/ui/Button";
 import { TransactionList } from "@/components/transactions/TransactionList";
 import { TransactionStats } from "@/components/transactions/TransactionStats";
@@ -20,6 +22,13 @@ import { CreateTransactionModal } from "@/components/transactions/CreateTransact
 import { EditTransactionModal } from "@/components/transactions/EditTransactionModal";
 import { DeleteTransactionDialog } from "@/components/transactions/DeleteTransactionDialog";
 import api from "@/services/api";
+import { 
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Transaction, TransactionStatsMonthly, TransactionType } from "@/types/api";
 
 export default function TransactionsPage() {
@@ -115,103 +124,171 @@ export default function TransactionsPage() {
     });
 
     return (
-        <div className="space-y-6 animate-fade-in-up pb-10">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <h2 className="text-2xl font-bold text-[#00404f]">Transações</h2>
-                <div className="flex gap-2 w-full md:w-auto">
-                    <Button variant="secondary" className="flex-1 md:flex-none">
-                        <Filter size={16} /> Filtros
-                    </Button>
-                    <Button 
-                        variant="primary" 
-                        onClick={() => setIsCreateModalOpen(true)}
-                        className="flex-1 md:flex-none"
-                    >
-                        <Plus size={16} /> Nova Transação
-                    </Button>
-                </div>
-            </div>
-
-            {/* Month Navigation */}
-            <div className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-[#00404f]/10">
-                <Button variant="ghost" size="icon" onClick={handlePreviousMonth}>
-                    <ChevronLeft size={20} />
-                </Button>
-                <div className="text-center">
-                    <h3 className="text-lg font-bold text-[#00404f] capitalize">
-                        {format(currentDate, "MMMM yyyy", { locale: ptBR })}
-                    </h3>
-                </div>
-                <Button variant="ghost" size="icon" onClick={handleNextMonth}>
-                    <ChevronRight size={20} />
-                </Button>
-            </div>
-
-            {/* Stats Section */}
-            <TransactionStats stats={stats} isLoading={isLoading} />
-
-            {/* Transactions List Section */}
-            <Card className="p-0! overflow-hidden shadow-sm border-[#00404f]/10">
-                <div className="border-b border-[#00404f]/10 p-4 bg-[#F8FAFC] flex flex-col md:flex-row gap-4">
-                    <div className="relative flex-1">
-                        <Search
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#00404f]/40"
-                            size={18}
-                        />
-                        <input
-                            type="text"
-                            placeholder="Buscar por descrição, estabelecimento..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-[#00404f]/10 bg-white focus:border-[#3c88a0] outline-none text-sm transition-colors"
-                        />
+        <div className={styles.scrollableArea}>
+             <div className="max-w-6xl mx-auto space-y-8 pb-10">
+                {/* Header */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 className="text-3xl font-bold text-white mb-1">Transações</h2>
+                        <p className="text-gray-400">Gerencie suas entradas e saídas.</p>
                     </div>
-                    <select 
-                        className="px-4 py-2 rounded-lg border border-[#00404f]/10 bg-white text-[#00404f] text-sm outline-none cursor-pointer hover:border-[#3c88a0] transition-colors"
-                        value={typeFilter}
-                        onChange={(e) => setTypeFilter(e.target.value as TransactionType | "ALL")}
-                    >
-                        <option value="ALL">Todas as Transações</option>
-                        <option value={TransactionType.EXPENSE}>Despesas</option>
-                        <option value={TransactionType.INCOME}>Receitas</option>
-                    </select>
+                    
+                    <div className="flex gap-3 w-full md:w-auto">
+                        
+                        <button 
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#32d6a5] text-[#020809] font-bold hover:bg-[#20bca3] transition-all shadow-lg shadow-[#32d6a5]/20"
+                        >
+                            <Plus size={18} /> 
+                            <span>Nova Transação</span>
+                        </button>
+                    </div>
                 </div>
 
-                <TransactionList 
-                    transactions={filteredTransactions} 
-                    isLoading={isLoading}
-                    onEdit={handleEditTransaction}
-                    onDelete={handleDeleteTransaction}
+                {/* Month Navigation */}
+                <div className="flex items-center justify-between bg-white/5 p-2 rounded-2xl border border-white/10 w-full md:w-fit mx-auto md:mx-0">
+                    <button 
+                        onClick={handlePreviousMonth}
+                        className="p-2 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+                    <div className="px-6 text-center">
+                        <h3 className="text-lg font-bold text-white capitalize">
+                            {format(currentDate, "MMMM yyyy", { locale: ptBR })}
+                        </h3>
+                    </div>
+                    <button 
+                        onClick={handleNextMonth}
+                        className="p-2 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+                    >
+                        <ChevronRight size={20} />
+                    </button>
+                </div>
+
+                {/* Stats Section with Smooth Transition */}
+                <AnimatePresence mode="wait">
+                    {isLoading ? (
+                        <motion.div
+                            key="loading-stats"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                             <TransactionStats stats={null} isLoading={true} />
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="content-stats"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <TransactionStats stats={stats} isLoading={false} />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Transactions List Section with Smooth Transition */}
+                <AnimatePresence mode="wait">
+                    {isLoading ? (
+                         <motion.div
+                            key="loading-list"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <TransactionList 
+                                transactions={[]} 
+                                isLoading={true}
+                            />
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="content-list"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.3 }}
+                            className="space-y-4"
+                        >
+                            <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
+                                <div className="relative w-full md:w-96">
+                                    <Search
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                                        size={18}
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Buscar transação..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-gray-600 focus:border-[#32d6a5]/50 outline-none transition-all"
+                                    />
+                                </div>
+                                <div className="w-full md:w-auto">
+                                    <Select
+                                        value={typeFilter}
+                                        onValueChange={(value) => setTypeFilter(value as TransactionType | "ALL")}
+                                    >
+                                        <SelectTrigger className="w-full md:w-[180px] h-[50px] rounded-xl border border-white/10 bg-[#06181b] text-white focus:ring-[#32d6a5]/50 focus:ring-1">
+                                            <SelectValue placeholder="Tipo" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-[#06181b] border border-white/10 text-white">
+                                            <SelectItem value="ALL" className="focus:bg-white/10 focus:text-white cursor-pointer">
+                                                Todas
+                                            </SelectItem>
+                                            <SelectItem value={TransactionType.EXPENSE} className="focus:bg-white/10 focus:text-white cursor-pointer">
+                                                Despesas
+                                            </SelectItem>
+                                            <SelectItem value={TransactionType.INCOME} className="focus:bg-white/10 focus:text-white cursor-pointer">
+                                                Receitas
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            <TransactionList 
+                                transactions={filteredTransactions} 
+                                isLoading={false}
+                                onEdit={handleEditTransaction}
+                                onDelete={handleDeleteTransaction}
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                <CreateTransactionModal 
+                    isOpen={isCreateModalOpen} 
+                    onClose={() => setIsCreateModalOpen(false)} 
+                    onSuccess={handleCreateSuccess}
                 />
-            </Card>
 
-            <CreateTransactionModal 
-                isOpen={isCreateModalOpen} 
-                onClose={() => setIsCreateModalOpen(false)} 
-                onSuccess={handleCreateSuccess}
-            />
+                <EditTransactionModal
+                    isOpen={isEditModalOpen}
+                    onClose={() => {
+                        setIsEditModalOpen(false);
+                        setSelectedTransaction(null);
+                    }}
+                    onSuccess={handleCreateSuccess}
+                    transaction={selectedTransaction}
+                />
 
-            <EditTransactionModal
-                isOpen={isEditModalOpen}
-                onClose={() => {
-                    setIsEditModalOpen(false);
-                    setSelectedTransaction(null);
-                }}
-                onSuccess={handleCreateSuccess}
-                transaction={selectedTransaction}
-            />
-
-            <DeleteTransactionDialog
-                isOpen={isDeleteDialogOpen}
-                onClose={() => {
-                    setIsDeleteDialogOpen(false);
-                    setSelectedTransaction(null);
-                }}
-                onConfirm={handleConfirmDelete}
-                transaction={selectedTransaction}
-                isDeleting={isDeleting}
-            />
+                <DeleteTransactionDialog
+                    isOpen={isDeleteDialogOpen}
+                    onClose={() => {
+                        setIsDeleteDialogOpen(false);
+                        setSelectedTransaction(null);
+                    }}
+                    onConfirm={handleConfirmDelete}
+                    transaction={selectedTransaction}
+                    isDeleting={isDeleting}
+                />
+            </div>
         </div>
     );
 }

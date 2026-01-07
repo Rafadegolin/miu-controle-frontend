@@ -57,68 +57,68 @@ export function SessionManager() {
 
   if (isLoading) {
     return (
-      <Card className="p-6 animate-pulse">
-        <div className="h-6 w-1/3 bg-gray-200 rounded mb-4"></div>
+      <div className="p-6 rounded-2xl bg-[#06181b] border border-white/10 animate-pulse">
+        <div className="h-8 w-1/3 bg-white/5 rounded-lg mb-6"></div>
         <div className="space-y-3">
-          <div className="h-16 bg-gray-100 rounded"></div>
-          <div className="h-16 bg-gray-100 rounded"></div>
+          <div className="h-20 bg-white/5 rounded-xl"></div>
+          <div className="h-20 bg-white/5 rounded-xl"></div>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="p-6">
+    <div className="p-6 rounded-2xl bg-[#06181b] border border-white/10">
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-[#00404f]/5 rounded-lg text-[#00404f]">
+        <div className="p-2.5 bg-[#32d6a5]/10 rounded-xl text-[#32d6a5]">
           <Shield size={24} />
         </div>
         <div>
-          <h3 className="font-bold text-lg text-[#00404f]">Sessões Ativas</h3>
-          <p className="text-sm text-[#00404f]/60">
+          <h3 className="font-bold text-lg text-white">Sessões Ativas</h3>
+          <p className="text-sm text-gray-400">
             Gerencie os dispositivos conectados à sua conta.
           </p>
         </div>
       </div>
 
-      {error && <p className="text-red-500 mb-4 text-sm">{error}</p>}
+      {error && <p className="text-red-400 mb-4 text-sm font-medium">{error}</p>}
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {sessions.map((session) => {
           const isMobile = /mobile/i.test(session.userAgent);
           
           return (
             <div
               key={session.id}
-              className={`flex items-center justify-between p-4 rounded-xl border ${
+              className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
                 session.isCurrent
-                  ? "bg-[#007459]/5 border-[#007459]/20"
-                  : "bg-white border-[#00404f]/10"
+                  ? "bg-[#32d6a5]/5 border-[#32d6a5]/20 shadow-[0_0_15px_rgba(50,214,165,0.05)]"
+                  : "bg-[#020809] border-white/5 hover:border-white/10"
               }`}
             >
               <div className="flex items-center gap-4">
                 <div
                   className={`p-3 rounded-full ${
                     session.isCurrent
-                      ? "bg-[#007459]/10 text-[#007459]"
-                      : "bg-[#00404f]/5 text-[#00404f]"
+                      ? "bg-[#32d6a5]/10 text-[#32d6a5]"
+                      : "bg-white/5 text-gray-400"
                   }`}
                 >
                   {isMobile ? <Smartphone size={20} /> : <Laptop size={20} />}
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-bold text-[#00404f] text-sm">
+                  <div className="flex items-center gap-3">
+                    <p className="font-bold text-white text-sm">
                       {isMobile ? "Dispositivo Móvel" : "Computador"}
                     </p>
                     {session.isCurrent && (
-                      <span className="text-[10px] font-bold bg-[#007459] text-white px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-bold bg-[#32d6a5] text-[#020809] px-2 py-0.5 rounded-full">
                         ATUAL
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-[#00404f]/60">
-                    <span title={session.userAgent} className="truncate max-w-[150px]">
+                  <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                    <span title={session.userAgent} className="truncate max-w-[150px] md:max-w-[250px]">
                       {session.ipAddress}
                     </span>
                     <span className="flex items-center gap-1">
@@ -137,12 +137,12 @@ export function SessionManager() {
               {!session.isCurrent && (
                 <Button
                   variant="ghost"
-                  size="sm" // Use size="sm" if available, or just verify props later
+                  size="sm"
                   onClick={() => handleRevoke(session.id)}
-                  className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                  className="text-red-500/60 hover:text-red-500 hover:bg-red-500/10 transition-colors"
                   title="Revogar acesso"
                 >
-                  <LogOut size={16} />
+                  <LogOut size={18} />
                 </Button>
               )}
             </div>
@@ -150,24 +150,24 @@ export function SessionManager() {
         })}
 
         {sessions.length === 0 && (
-          <p className="text-center text-[#00404f]/40 py-4">
+          <p className="text-center text-gray-500 py-8">
             Nenhuma sessão encontrada.
           </p>
         )}
       </div>
 
       {sessions.length > 1 && (
-        <div className="mt-6 pt-6 border-t border-[#00404f]/10 flex justify-end">
+        <div className="mt-6 pt-6 border-t border-white/5 flex justify-end">
           <Button
             variant="outline"
             onClick={handleRevokeAll}
-            className="text-red-600 border-red-200 hover:bg-red-50"
+            className="text-red-500 border-red-500/20 hover:bg-red-500/10 hover:text-red-400 bg-transparent transition-all"
           >
             <Trash2 size={16} className="mr-2" />
             Sair de todos os outros dispositivos
           </Button>
         </div>
       )}
-    </Card>
+    </div>
   );
 }

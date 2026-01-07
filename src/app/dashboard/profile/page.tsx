@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Lock, Loader2, Eye, EyeOff } from "lucide-react";
+import { Lock, Loader2, Eye, EyeOff, User as UserIcon } from "lucide-react";
+import styles from "@/components/dashboard/styles/Dashboard.module.css";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUser } from "@/hooks/useUser";
 import { DeleteAccountModal } from "@/components/profile/DeleteAccountModal";
@@ -81,220 +82,264 @@ export default function ProfilePage() {
 
   if (isLoading) {
       return (
-          <div className="space-y-6">
-              <Skeleton className="h-8 w-40 mb-6" />
-              <div className="flex flex-col md:flex-row gap-6">
-                <Skeleton className="h-[200px] w-full md:w-1/2 rounded-xl" />
-                <Skeleton className="h-[200px] w-full md:w-1/2 rounded-xl" />
+          <div className={styles.scrollableArea}>
+              <div className="max-w-5xl mx-auto space-y-6">
+                 <Skeleton className="h-8 w-40 mb-6 bg-white/5" />
+                 <Skeleton className="h-[200px] w-full rounded-3xl bg-white/5" />
+                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <Skeleton className="h-[300px] w-full rounded-2xl bg-white/5" />
+                    <Skeleton className="h-[300px] w-full rounded-2xl bg-white/5" />
+                 </div>
+                 <Skeleton className="h-[400px] w-full rounded-2xl bg-white/5" />
               </div>
-              <Skeleton className="h-[400px] w-full rounded-xl" />
           </div>
       )
   }
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
-      <h2 className="text-2xl font-bold text-[#00404f]">Perfil</h2>
-
-      <Card className="flex flex-col md:flex-row items-center gap-8 p-8 relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-64 h-64 bg-[#7cddb1] opacity-10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+    <div className={styles.scrollableArea}>
+      <div className="max-w-5xl mx-auto space-y-8 pb-10">
         
-        {/* Avatar Upload Component */}
-        <AvatarUpload user={user} />
-
-        <div className="flex-1">
-            <div className="flex gap-2 justify-center md:justify-start mt-4 md:mt-0">
-            <span className="px-3 py-1 bg-[#00404f]/5 text-[#00404f] rounded-lg text-xs font-bold border border-[#00404f]/10">
-              Nível {(user as any)?.level || 1}
-            </span>
-            <span className="px-3 py-1 bg-[#ffd166]/10 text-[#e0a800] rounded-lg text-xs font-bold border border-[#ffd166]/20">
-              Streak {(user as any)?.streak || 0} 🔥
-            </span>
-          </div>
-        </div>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <h4 className="font-bold text-[#00404f] mb-4">
-            Informações Pessoais
-          </h4>
-          
-          {/* Reuse ProfileForm Component */}
-          <ProfileForm user={user} />
-          
-        </Card>
-
-        <Card>
-          <h4 className="font-bold text-[#00404f] mb-4">Conquistas</h4>
-          <div className="grid grid-cols-4 gap-4">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div
-                key={i}
-                className={`aspect-square rounded-xl flex items-center justify-center text-2xl border ${
-                  i <= 3
-                    ? "bg-[#ffd166]/10 border-[#ffd166]/30"
-                    : "bg-[#F8FAFC] border-[#00404f]/5 opacity-50 grayscale"
-                }`}
-              >
-                {i === 1 ? "🏆" : i === 2 ? "🚀" : i === 3 ? "💰" : "🔒"}
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-
-      <Card>
-        <div className="flex items-center gap-3 text-[#00404f] mb-6">
-          <div className="p-2 bg-[#00404f]/5 rounded-lg">
-            <Lock size={20} />
-          </div>
-          <h4 className="font-bold">Segurança</h4>
+        <div>
+          <h2 className="text-3xl font-bold text-white mb-2">Meu Perfil</h2>
+          <p className="text-gray-400">Gerencie suas informações pessoais e segurança</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
-            <h5 className="text-sm font-bold text-[#00404f]/60 uppercase mb-4">
-              Alterar Senha
-            </h5>
-            <form onSubmit={handleChangePassword} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-[#00404f]/40 uppercase mb-1">
-                  Senha Atual
-                </label>
-                <div className="relative">
-                  <input
-                    type={showCurrentPassword ? "text" : "password"}
-                    value={passwordForm.currentPassword}
-                    onChange={(e) =>
-                      setPasswordForm({
-                        ...passwordForm,
-                        currentPassword: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 bg-[#F8FAFC] border border-[#00404f]/10 rounded-lg text-[#00404f] outline-none focus:border-[#3c88a0] transition-colors pr-10"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#00404f]/40 hover:text-[#00404f] transition-colors"
-                  >
-                    {showCurrentPassword ? (
-                      <EyeOff size={16} />
-                    ) : (
-                      <Eye size={16} />
-                    )}
-                  </button>
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-bold text-[#00404f]/40 uppercase mb-1">
-                  Nova Senha
-                </label>
-                <div className="relative">
-                  <input
-                    type={showNewPassword ? "text" : "password"}
-                    value={passwordForm.newPassword}
-                    onChange={(e) =>
-                      setPasswordForm({
-                        ...passwordForm,
-                        newPassword: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 bg-[#F8FAFC] border border-[#00404f]/10 rounded-lg text-[#00404f] outline-none focus:border-[#3c88a0] transition-colors pr-10"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#00404f]/40 hover:text-[#00404f] transition-colors"
-                  >
-                    {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
+        {/* Hero Card */}
+        <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-[#06181b] to-[#0a272b] border border-white/10 p-8 md:p-10 backdrop-blur-xl">
+           <div className="absolute top-0 right-0 w-96 h-96 bg-[#32d6a5]/10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none"></div>
+           
+           <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
+              <AvatarUpload user={user} />
+
+              <div className="flex-1 text-center md:text-left space-y-6">
+                <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                    <div className="px-4 py-2 bg-[#32d6a5]/10 text-[#32d6a5] rounded-xl text-sm font-bold border border-[#32d6a5]/20 flex items-center gap-2">
+                        <span>🏆</span> Nível {(user as any)?.level || 1}
+                    </div>
+                    <div className="px-4 py-2 bg-orange-500/10 text-orange-400 rounded-xl text-sm font-bold border border-orange-500/20 flex items-center gap-2">
+                        <span>🔥</span> Streak {(user as any)?.streak || 0} dias
+                    </div>
                 </div>
                 
-                {/* Password Strength Meter */}
-                {passwordForm.newPassword && (
-                    <div className="mt-2">
-                        <div className="flex justify-between items-center mb-1">
-                            <span className="text-[10px] uppercase font-bold text-[#00404f]/60">Força da senha</span>
-                            <span className={`text-[10px] font-bold ${strength.color.replace("bg-", "text-")}`}>{strength.label}</span>
-                        </div>
-                        <div className="h-1.5 w-full bg-[#00404f]/10 rounded-full overflow-hidden">
-                            <div 
-                                className={`h-full ${strength.color} transition-all duration-300`} 
-                                style={{ width: `${(strength.score / 4) * 100}%` }}
-                            ></div>
-                        </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-center">
+                        <div className="text-2xl font-bold text-white mb-1">12</div>
+                        <div className="text-xs text-gray-400 uppercase font-bold">Resumos</div>
                     </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#00404f]/40 uppercase mb-1">
-                  Confirmar Nova Senha
-                </label>
-                <div className="relative">
-                  <input
-                    type={showConfirmNewPassword ? "text" : "password"}
-                    value={passwordForm.confirmNewPassword}
-                    onChange={(e) =>
-                      setPasswordForm({
-                        ...passwordForm,
-                        confirmNewPassword: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 bg-[#F8FAFC] border border-[#00404f]/10 rounded-lg text-[#00404f] outline-none focus:border-[#3c88a0] transition-colors pr-10"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setShowConfirmNewPassword(!showConfirmNewPassword)
-                    }
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#00404f]/40 hover:text-[#00404f] transition-colors"
-                  >
-                    {showConfirmNewPassword ? (
-                      <EyeOff size={16} />
-                    ) : (
-                      <Eye size={16} />
-                    )}
-                  </button>
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-center">
+                        <div className="text-2xl font-bold text-white mb-1">5</div>
+                        <div className="text-xs text-gray-400 uppercase font-bold">Metas</div>
+                    </div>
+                     <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-center">
+                        <div className="text-2xl font-bold text-white mb-1">85%</div>
+                        <div className="text-xs text-gray-400 uppercase font-bold">Saúde</div>
+                    </div>
+                     <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-center">
+                        <div className="text-2xl font-bold text-white mb-1">A+</div>
+                        <div className="text-xs text-gray-400 uppercase font-bold">Score</div>
+                    </div>
                 </div>
               </div>
-
-              <Button
-                type="submit"
-                variant="outline"
-                disabled={isChangingPassword}
-                className="w-full"
-              >
-                {isChangingPassword ? (
-                  <>
-                    <Loader2 className="animate-spin mr-2 h-4 w-4" />
-                    Alterando...
-                  </>
-                ) : (
-                  "Atualizar Senha"
-                )}
-              </Button>
-            </form>
-          </div>
-
-          <div className="border-t md:border-t-0 md:border-l border-[#00404f]/10 pt-6 md:pt-0 md:pl-8">
-            <h5 className="text-sm font-bold text-red-600/60 uppercase mb-4">
-              Zona de Perigo
-            </h5>
-            <p className="text-sm text-[#00404f]/60 mb-6">
-              Ao excluir sua conta, todos os seus dados serão perdidos
-              permanentemente. Esta ação não pode ser desfeita.
-            </p>
-            <DeleteAccountModal />
-          </div>
+           </div>
         </div>
-      </Card>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Personal Info */}
+            <div className="p-6 rounded-2xl bg-[#06181b] border border-white/10">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-[#32d6a5]/10 rounded-lg text-[#32d6a5]">
+                        <UserIcon size={20} />
+                    </div>
+                    <h4 className="font-bold text-lg text-white">Informações Pessoais</h4>
+                </div>
+                <ProfileForm user={user} />
+            </div>
+
+            {/* Achievements */}
+            <div className="p-6 rounded-2xl bg-[#06181b] border border-white/10">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-yellow-500/10 rounded-lg text-yellow-500">
+                         <span className="text-xl">🏆</span>
+                    </div>
+                    <h4 className="font-bold text-lg text-white">Conquistas Recentes</h4>
+                </div>
+                
+                <div className="grid grid-cols-4 gap-4">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                    <div
+                        key={i}
+                        className={`aspect-square rounded-2xl flex items-center justify-center text-3xl border transition-all hover:scale-105 cursor-pointer ${
+                        i <= 3
+                            ? "bg-linear-to-br from-[#32d6a5]/20 to-[#32d6a5]/5 border-[#32d6a5]/30 text-white shadow-lg shadow-[#32d6a5]/10"
+                            : "bg-white/5 border-white/5 text-gray-600 grayscale opacity-50 hover:opacity-100 hover:grayscale-0"
+                        }`}
+                        title={i <= 3 ? "Conquistado!" : "Bloqueado"}
+                    >
+                        {i === 1 ? "🚀" : i === 2 ? "💰" : i === 3 ? "📊" : "🔒"}
+                    </div>
+                    ))}
+                </div>
+                <div className="mt-6 text-center">
+                    <button className="text-sm text-[#32d6a5] hover:text-[#20bca3] font-medium transition-colors">
+                        Ver todas as conquistas &rarr;
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {/* Security Section */}
+        <div className="p-6 md:p-8 rounded-2xl bg-[#06181b] border border-white/10 relative overflow-hidden">
+             <div className="flex items-center gap-3 mb-8">
+                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                    <Lock size={20} />
+                </div>
+                <div>
+                     <h4 className="font-bold text-lg text-white">Segurança & Privacidade</h4>
+                     <p className="text-sm text-gray-400">Gerencie sua senha e acesso à conta</p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div className="space-y-6">
+                     <h5 className="text-xs font-bold text-[#32d6a5] uppercase tracking-wider mb-4 border-b border-white/10 pb-2">
+                        Alterar Senha
+                     </h5>
+                    <form onSubmit={handleChangePassword} className="space-y-4">
+                        <div>
+                             <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
+                                Senha Atual
+                             </label>
+                             <div className="relative">
+                                <input
+                                    type={showCurrentPassword ? "text" : "password"}
+                                    value={passwordForm.currentPassword}
+                                    onChange={(e) =>
+                                        setPasswordForm({
+                                            ...passwordForm,
+                                            currentPassword: e.target.value,
+                                        })
+                                    }
+                                    className="w-full p-3 bg-[#020809] border border-white/10 rounded-xl text-white outline-none focus:border-[#32d6a5] transition-colors pr-10 hover:border-white/20"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                                >
+                                    {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                             </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
+                                Nova Senha
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type={showNewPassword ? "text" : "password"}
+                                    value={passwordForm.newPassword}
+                                    onChange={(e) =>
+                                        setPasswordForm({
+                                            ...passwordForm,
+                                            newPassword: e.target.value,
+                                        })
+                                    }
+                                    className="w-full p-3 bg-[#020809] border border-white/10 rounded-xl text-white outline-none focus:border-[#32d6a5] transition-colors pr-10 hover:border-white/20"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowNewPassword(!showNewPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                                >
+                                    {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                            </div>
+
+                            {/* Password Strength Meter */}
+                            {passwordForm.newPassword && (
+                                <div className="mt-3 bg-white/5 p-3 rounded-lg border border-white/5">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-[10px] uppercase font-bold text-gray-400">Força da senha</span>
+                                        <span className={`text-[10px] font-bold ${strength.color.replace("bg-", "text-")}`}>{strength.label}</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                                        <div 
+                                            className={`h-full ${strength.color} transition-all duration-300 shadow-[0_0_10px_rgba(0,0,0,0.5)]`} 
+                                            style={{ width: `${(strength.score / 4) * 100}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
+                                Confirmar Nova Senha
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type={showConfirmNewPassword ? "text" : "password"}
+                                    value={passwordForm.confirmNewPassword}
+                                    onChange={(e) =>
+                                        setPasswordForm({
+                                            ...passwordForm,
+                                            confirmNewPassword: e.target.value,
+                                        })
+                                    }
+                                    className="w-full p-3 bg-[#020809] border border-white/10 rounded-xl text-white outline-none focus:border-[#32d6a5] transition-colors pr-10 hover:border-white/20"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                                >
+                                    {showConfirmNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="pt-2">
+                             <Button
+                                type="submit"
+                                disabled={isChangingPassword}
+                                className="w-full bg-[#06181b] border border-[#32d6a5] text-[#32d6a5] hover:bg-[#32d6a5] hover:text-[#020809] transition-all font-bold h-12"
+                            >
+                                {isChangingPassword ? (
+                                <>
+                                    <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                                    Atualizando...
+                                </>
+                                ) : (
+                                "Atualizar Senha"
+                                )}
+                            </Button>
+                        </div>
+                    </form>
+                </div>
+
+                <div className="border-t lg:border-t-0 lg:border-l border-white/10 pt-8 lg:pt-0 lg:pl-12 flex flex-col justify-center">
+                    <div className="p-6 rounded-xl bg-red-500/5 border border-red-500/20">
+                        <div className="flex items-center gap-3 mb-4 text-red-400">
+                             <div className="p-2 bg-red-500/10 rounded-full"><Lock size={16} /></div>
+                             <h5 className="font-bold text-sm uppercase tracking-wider">Zona de Perigo</h5>
+                        </div>
+                        
+                        <p className="text-sm text-gray-400 mb-6 leading-relaxed">
+                            Ao excluir sua conta, todos os seus dados (transações, contas, metas) serão perdidos
+                            permanentemente. <span className="text-white font-medium">Esta ação não pode ser desfeita.</span>
+                        </p>
+                        
+                        <DeleteAccountModal />
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -170,14 +170,14 @@ export function EditTransactionModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] bg-[#06181b] border border-white/10 text-white">
         <DialogHeader>
-          <DialogTitle>Editar Transação</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-white">Editar Transação</DialogTitle>
         </DialogHeader>
 
         {isLoading ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="animate-spin text-gray-400" />
+            <Loader2 className="animate-spin text-[#32d6a5]" />
           </div>
         ) : (
           <Form {...form}>
@@ -189,11 +189,17 @@ export function EditTransactionModal({
                 }
                 className="w-full"
               >
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value={TransactionType.EXPENSE}>
+                <TabsList className="grid w-full grid-cols-2 bg-white/5 p-1 rounded-xl">
+                  <TabsTrigger 
+                    value={TransactionType.EXPENSE}
+                    className="data-[state=active]:bg-red-500/20 data-[state=active]:text-red-400 text-gray-400"
+                  >
                     Despesa
                   </TabsTrigger>
-                  <TabsTrigger value={TransactionType.INCOME}>
+                  <TabsTrigger 
+                    value={TransactionType.INCOME}
+                    className="data-[state=active]:bg-[#32d6a5]/20 data-[state=active]:text-[#32d6a5] text-gray-400"
+                  >
                     Receita
                   </TabsTrigger>
                 </TabsList>
@@ -205,17 +211,17 @@ export function EditTransactionModal({
                   name="amount"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Valor</FormLabel>
+                      <FormLabel className="text-gray-400">Valor</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           step="0.01"
                           placeholder="0,00"
                           {...field}
-                          className="text-lg font-bold"
+                          className="text-lg font-bold bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-[#32d6a5]/50"
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
                 />
@@ -225,14 +231,14 @@ export function EditTransactionModal({
                   name="date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Data</FormLabel>
+                      <FormLabel className="text-gray-400">Data</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
                               variant="outline"
                               className={cn(
-                                "w-full pl-3 text-left font-normal",
+                                "w-full pl-3 text-left font-normal bg-white/5 border-white/10 text-white hover:bg-white/10 hover:text-white",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
@@ -245,16 +251,17 @@ export function EditTransactionModal({
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverContent className="w-auto p-0 bg-[#06181b] border-white/10 text-white" align="start">
                           <Calendar
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
                             initialFocus
+                            className="bg-[#06181b] text-white"
                           />
                         </PopoverContent>
                       </Popover>
-                      <FormMessage />
+                      <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
                 />
@@ -265,11 +272,15 @@ export function EditTransactionModal({
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Descrição</FormLabel>
+                    <FormLabel className="text-gray-400">Descrição</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: Almoço, Salário..." {...field} />
+                      <Input 
+                        placeholder="Ex: Almoço, Salário..." 
+                        {...field} 
+                        className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-[#32d6a5]/50"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-400" />
                   </FormItem>
                 )}
               />
@@ -280,19 +291,19 @@ export function EditTransactionModal({
                   name="categoryId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Categoria</FormLabel>
+                      <FormLabel className="text-gray-400">Categoria</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-[#32d6a5]/50 focus:ring-1">
                             <SelectValue placeholder="Selecione" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="bg-[#020809] border-white/10 text-white">
                           {filteredCategories.map((category) => (
-                            <SelectItem key={category.id} value={category.id}>
+                            <SelectItem key={category.id} value={category.id} className="focus:bg-white/10 focus:text-white">
                               <span className="flex items-center gap-2">
                                 <DynamicIcon name={category.icon || ""} size={16} />
                                 {category.name}
@@ -301,7 +312,7 @@ export function EditTransactionModal({
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
                 />
@@ -311,19 +322,19 @@ export function EditTransactionModal({
                   name="accountId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Conta</FormLabel>
+                      <FormLabel className="text-gray-400">Conta</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-[#32d6a5]/50 focus:ring-1">
                             <SelectValue placeholder="Selecione" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="bg-[#020809] border-white/10 text-white">
                           {accounts.map((account) => (
-                            <SelectItem key={account.id} value={account.id}>
+                            <SelectItem key={account.id} value={account.id} className="focus:bg-white/10 focus:text-white">
                               <span className="flex items-center gap-2">
                                 {account.name}
                               </span>
@@ -331,22 +342,26 @@ export function EditTransactionModal({
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
                 />
               </div>
 
-              <DialogFooter>
+              <DialogFooter className="gap-2">
                 <Button
                   type="button"
-                  variant="ghost"
+                  className="bg-transparent border border-white/10 text-gray-400 hover:bg-white/5 hover:text-white"
                   onClick={onClose}
                   disabled={isSubmitting}
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="bg-[#32d6a5] text-[#020809] font-bold hover:bg-[#20bca3]"
+                >
                   {isSubmitting && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}

@@ -45,7 +45,7 @@ const ICONS = [
 
 export function CategoryIconSelector({ value, onChange }: CategoryIconSelectorProps) {
     return (
-        <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 max-h-[200px] overflow-y-auto p-2 border rounded-md">
+        <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 max-h-[200px] overflow-y-auto p-3 border border-white/10 rounded-xl bg-[#082024] custom-scrollbar">
             {ICONS.map((item) => {
                 const Icon = item.icon;
                 const isSelected = value === item.name;
@@ -56,8 +56,10 @@ export function CategoryIconSelector({ value, onChange }: CategoryIconSelectorPr
                         type="button"
                         onClick={() => onChange(item.name)}
                         className={cn(
-                            "flex items-center justify-center p-2 rounded-md hover:bg-gray-100 transition-colors",
-                            isSelected && "bg-primary/10 text-primary ring-2 ring-primary ring-offset-1"
+                            "flex items-center justify-center p-2.5 rounded-lg transition-all duration-200",
+                            isSelected 
+                                ? "bg-[#32d6a5]/20 text-[#32d6a5] ring-1 ring-[#32d6a5] shadow-[0_0_8px_rgba(50,214,165,0.3)] scale-110" 
+                                : "text-gray-400 hover:bg-white/10 hover:text-white hover:scale-105"
                         )}
                         title={item.name}
                     >

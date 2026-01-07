@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, Menu, Home, Wallet, PieChart, User, Plus } from "lucide-react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Sidebar } from "@/components/dashboard/Sidebar";
+import { Bell, Menu, Plus } from "lucide-react";
+import styles from "@/components/dashboard/styles/Dashboard.module.css";
 import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
+import { Home, Wallet, PieChart, User } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -18,7 +20,7 @@ export default function DashboardLayout({
 
   return (
     <ProtectedRoute>
-      <div className="flex h-screen bg-[#F0F9FA] font-sans text-[#00404f] overflow-hidden selection:bg-[#7cddb1] selection:text-[#00404f]">
+      <div className={styles.dashboardContainer}>
         {/* DESKTOP SIDEBAR */}
         <Sidebar
           isOpen={isSidebarOpen}
@@ -26,127 +28,90 @@ export default function DashboardLayout({
         />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+        <div className={styles.mainContent}>
           {/* Mobile Header Overlay */}
           {isSidebarOpen && (
             <div
-              className="fixed inset-0 bg-black/20 z-40 lg:hidden"
+              className={styles.overlay}
               onClick={() => setIsSidebarOpen(false)}
             />
           )}
 
           {/* Top Bar */}
-          <header className="h-20 flex items-center justify-between px-6 border-b border-[#00404f]/5 bg-[#F0F9FA]/80 backdrop-blur-xl z-30 sticky top-0">
+          <header className={styles.header}>
             <div className="flex items-center gap-4 lg:hidden">
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="p-2 -ml-2 text-[#00404f]"
+                className="text-white"
               >
                 <Menu />
               </button>
-              <span className="font-bold text-xl">Miu</span>
+              <span className="font-bold text-xl text-white">Miu</span>
             </div>
 
-            <div className="hidden lg:flex items-center text-[#00404f]/50 text-sm gap-2">
-              <span className="px-2 py-1 rounded-md hover:bg-[#00404f]/5 cursor-pointer">
-                /
-              </span>
-              <span className="px-2 py-1 rounded-md hover:bg-[#00404f]/5 cursor-pointer capitalize font-medium text-[#00404f]">
-                {pathname.split("/").pop() || "dashboard"}
+            <div className="hidden lg:flex items-center text-gray-400 text-sm gap-2">
+              <span className={styles.pageTitle}>
+                 {/* Capitalize page name */}
+                 {pathname.split("/").pop() === "dashboard" ? "Visão Geral" : pathname.split("/").pop()?.charAt(0).toUpperCase() + pathname.split("/").pop()!.slice(1)}
               </span>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className={styles.headerActions}>
+              <button className={styles.iconBtn}>
+                 <Plus size={20} />
+              </button>
               <div className="relative">
-                <Bell
-                  size={20}
-                  className="text-[#00404f]/60 hover:text-[#00404f] cursor-pointer transition-colors"
-                />
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#ff6b6b] rounded-full border-2 border-[#F0F9FA]"></span>
+                <button className={styles.iconBtn}>
+                  <Bell size={20} />
+                </button>
+                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#32d6a5] rounded-full border-2 border-[#020809]"></span>
               </div>
             </div>
           </header>
 
           {/* Scrollable Content Area */}
-          <main className="flex-1 overflow-y-auto p-6 lg:p-10 scroll-smooth">
-            <div className="max-w-6xl mx-auto">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={pathname}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {children}
-                </motion.div>
-              </AnimatePresence>
-            </div>
+          <main className={styles.scrollableArea}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                style={{ height: '100%' }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
           </main>
         </div>
 
-        {/* MOBILE BOTTOM NAV */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#00404f]/5 px-6 py-2 flex justify-between items-center z-50 shadow-2xl">
+        {/* MOBILE BOTTOM NAV (Simplified for Mobile) */}
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#06181b] border-t border-white/10 px-6 py-2 flex justify-between items-center z-50">
           <Link href="/dashboard">
-            <button
-              className={`flex flex-col items-center p-2 rounded-lg ${
-                pathname === "/dashboard"
-                  ? "text-[#00404f]"
-                  : "text-[#00404f]/40"
-              }`}
-            >
-              <Home
-                size={24}
-                strokeWidth={pathname === "/dashboard" ? 2.5 : 2}
-              />
-            </button>
+             <button className={pathname === "/dashboard" ? "text-[#32d6a5]" : "text-gray-400"}>
+                <Home size={24} />
+             </button>
           </Link>
           <Link href="/dashboard/transactions">
-            <button
-              className={`flex flex-col items-center p-2 rounded-lg ${
-                pathname === "/dashboard/transactions"
-                  ? "text-[#00404f]"
-                  : "text-[#00404f]/40"
-              }`}
-            >
-              <Wallet
-                size={24}
-                strokeWidth={pathname === "/dashboard/transactions" ? 2.5 : 2}
-              />
-            </button>
+             <button className={pathname === "/dashboard/transactions" ? "text-[#32d6a5]" : "text-gray-400"}>
+                <Wallet size={24} />
+             </button>
           </Link>
-          <div className="relative -top-6">
-            <button className="w-14 h-14 bg-[#00404f] rounded-full flex items-center justify-center text-[#7cddb1] shadow-lg shadow-[#00404f]/30 border-4 border-[#F0F9FA] hover:scale-105 transition-transform">
-              <Plus size={28} />
-            </button>
+          <div className="relative -top-5">
+             <button className="w-12 h-12 bg-[#32d6a5] rounded-full flex items-center justify-center text-[#020809] shadow-lg shadow-[#32d6a5]/30">
+                <Plus size={24} />
+             </button>
           </div>
           <Link href="/dashboard/reports">
-            <button
-              className={`flex flex-col items-center p-2 rounded-lg ${
-                pathname === "/dashboard/reports"
-                  ? "text-[#00404f]"
-                  : "text-[#00404f]/40"
-              }`}
-            >
-              <PieChart
-                size={24}
-                strokeWidth={pathname === "/dashboard/reports" ? 2.5 : 2}
-              />
-            </button>
+             <button className={pathname === "/dashboard/reports" ? "text-[#32d6a5]" : "text-gray-400"}>
+                <PieChart size={24} />
+             </button>
           </Link>
           <Link href="/dashboard/profile">
-            <button
-              className={`flex flex-col items-center p-2 rounded-lg ${
-                pathname === "/dashboard/profile"
-                  ? "text-[#00404f]"
-                  : "text-[#00404f]/40"
-              }`}
-            >
-              <User
-                size={24}
-                strokeWidth={pathname === "/dashboard/profile" ? 2.5 : 2}
-              />
-            </button>
+             <button className={pathname === "/dashboard/profile" ? "text-[#32d6a5]" : "text-gray-400"}>
+                <User size={24} />
+             </button>
           </Link>
         </nav>
       </div>

@@ -76,45 +76,46 @@ export function CreateAccountModal({ isOpen, onClose, accountToEdit }: CreateAcc
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] bg-[#06181b] border border-white/10 text-white">
                 <DialogHeader>
-                    <DialogTitle className="text-[#00404f]">
+                    <DialogTitle className="text-xl font-bold text-white">
                         {accountToEdit ? "Editar Conta" : "Nova Conta"}
                     </DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4 py-4">
                     <div className="space-y-2">
-                        <Label htmlFor="name">Nome da Conta</Label>
+                        <Label htmlFor="name" className="text-gray-400">Nome da Conta</Label>
                         <Input 
                             id="name" 
                             placeholder="Ex: NuBank, Carteira..." 
                             value={formData.name}
                             onChange={(e) => setFormData({...formData, name: e.target.value})}
                             required
+                            className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-[#32d6a5]/50"
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                             <Label htmlFor="bank">Instituição</Label>
+                             <Label htmlFor="bank" className="text-gray-400">Instituição</Label>
                              <Select 
                                  value={formData.bankCode} 
                                  onValueChange={(val) => setFormData({...formData, bankCode: val})}
                              >
-                                 <SelectTrigger>
+                                 <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-[#32d6a5]/50 focus:ring-1">
                                      <SelectValue placeholder="Selecione" />
                                  </SelectTrigger>
-                                 <SelectContent>
+                                 <SelectContent className="bg-[#06181b] border-white/10 text-white">
                                      {POPULAR_BANKS.map(bank => (
-                                         <SelectItem key={bank.code} value={bank.code}>{bank.name}</SelectItem>
+                                         <SelectItem key={bank.code} value={bank.code} className="focus:bg-white/10 focus:text-white">{bank.name}</SelectItem>
                                      ))}
                                  </SelectContent>
                              </Select>
                         </div>
                         
                         <div className="space-y-2">
-                            <Label htmlFor="type">Tipo</Label>
+                            <Label htmlFor="type" className="text-gray-400">Tipo</Label>
                             <Select 
                                 value={formData.type} 
                                 onValueChange={(val) => {
@@ -127,14 +128,14 @@ export function CreateAccountModal({ isOpen, onClose, accountToEdit }: CreateAcc
                                     setFormData({...formData, type: val as AccountType, icon})
                                 }}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-[#32d6a5]/50 focus:ring-1">
                                     <SelectValue placeholder="Selecione" />
                                 </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value={AccountType.CHECKING}>Corrente</SelectItem>
-                                    <SelectItem value={AccountType.SAVINGS}>Poupança</SelectItem>
-                                    <SelectItem value={AccountType.CREDIT_CARD}>Cartão de Crédito</SelectItem>
-                                    <SelectItem value={AccountType.INVESTMENT}>Investimento</SelectItem>
+                                <SelectContent className="bg-[#06181b] border-white/10 text-white">
+                                    <SelectItem value={AccountType.CHECKING} className="focus:bg-white/10 focus:text-white">Corrente</SelectItem>
+                                    <SelectItem value={AccountType.SAVINGS} className="focus:bg-white/10 focus:text-white">Poupança</SelectItem>
+                                    <SelectItem value={AccountType.CREDIT_CARD} className="focus:bg-white/10 focus:text-white">Cartão de Crédito</SelectItem>
+                                    <SelectItem value={AccountType.INVESTMENT} className="focus:bg-white/10 focus:text-white">Investimento</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -142,7 +143,7 @@ export function CreateAccountModal({ isOpen, onClose, accountToEdit }: CreateAcc
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="balance">Saldo Inicial</Label>
+                            <Label htmlFor="balance" className="text-gray-400">Saldo Inicial</Label>
                             <Input 
                                 id="balance" 
                                 type="number" 
@@ -151,30 +152,31 @@ export function CreateAccountModal({ isOpen, onClose, accountToEdit }: CreateAcc
                                 onChange={(e) => setFormData({...formData, initialBalance: parseFloat(e.target.value) || 0})}
                                 required
                                 disabled={!!accountToEdit} 
+                                className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-[#32d6a5]/50 disabled:opacity-50"
                             />
                         </div>
                          <div className="space-y-2">
-                            <Label htmlFor="icon">Ícone (Sistema)</Label>
+                            <Label htmlFor="icon" className="text-gray-400">Ícone (Sistema)</Label>
                             {/* Hidden or read-only for now, mapped from type */}
                             <Input 
                                 id="icon" 
                                 value={formData.icon}
                                 disabled
-                                className="bg-gray-100"
+                                className="bg-white/5 border-white/10 text-gray-500 cursor-not-allowed"
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <Label>Cor de Identificação</Label>
-                        <div className="flex flex-wrap gap-2">
+                        <Label className="text-gray-400">Cor de Identificação</Label>
+                        <div className="flex flex-wrap gap-2 p-2 bg-white/5 rounded-xl border border-white/10">
                             {ACCOUNT_COLORS.map((color) => (
                                 <button
                                     key={color}
                                     type="button"
                                     className={`w-8 h-8 rounded-full border-2 transition-all ${
                                         formData.color === color 
-                                            ? "border-black scale-110" 
+                                            ? "border-white scale-110 shadow-[0_0_10px_rgba(255,255,255,0.5)]" 
                                             : "border-transparent hover:scale-105"
                                     }`}
                                     style={{ backgroundColor: color }}
@@ -184,11 +186,20 @@ export function CreateAccountModal({ isOpen, onClose, accountToEdit }: CreateAcc
                         </div>
                     </div>
 
-                    <DialogFooter>
-                         <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
+                    <DialogFooter className="gap-2">
+                         <Button 
+                            type="button" 
+                            className="bg-transparent border border-white/10 text-gray-400 hover:bg-white/5 hover:text-white"
+                            onClick={onClose} 
+                            disabled={isLoading}
+                        >
                             Cancelar
                         </Button>
-                        <Button type="submit" variant="primary" disabled={isLoading}>
+                        <Button 
+                            type="submit" 
+                            disabled={isLoading}
+                            className="bg-[#32d6a5] text-[#020809] font-bold hover:bg-[#20bca3]"
+                        >
                             {isLoading ? (
                                 <>
                                     <Loader2 className="animate-spin mr-2 h-4 w-4" />

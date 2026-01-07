@@ -6,9 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { api } from "@/services/api";
-import { Button } from "@/components/ui/Button";
 import { Loader2 } from "lucide-react";
-import Image from "next/image";
+import styles from "@/components/auth/Auth.module.css";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -46,133 +45,100 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F0F4F8] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-             <Image
-                src="/logo.svg"
-                alt="Logo"
-                width={48}
-                height={48}
-                className="w-12 h-12"
-              />
-        </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-[#00404f]">
-          Recuperar Senha
-        </h2>
-        <p className="mt-2 text-center text-sm text-[#3c88a0]">
+    <div className={styles.authContainer}>
+      <div className={styles.authCard}>
+        {/* Logo */}
+        <Link href="/" className={styles.logo}>
+          <span style={{ color: "var(--primary)" }}>✦</span> Miu Controle
+        </Link>
+        
+        <h2 className={styles.title}>Recuperar Senha</h2>
+        <p className={styles.subtitle}>
           Informe seu email para receber o link de redefinição
         </p>
-      </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {isSuccess ? (
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-                <svg
-                  className="h-6 w-6 text-green-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-[#00404f] mb-2">
-                Email Enviado!
-              </h3>
-              <p className="text-sm text-gray-500 mb-6">
-                Verifique sua caixa de entrada e siga as instruções para redefinir
-                sua senha.
-              </p>
-              <Link href="/login">
-                <Button variant="outline" className="w-full">
-                  Voltar para Login
-                </Button>
-              </Link>
+        {isSuccess ? (
+          <div className="text-center">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-500/10 mb-4 border border-green-500/20">
+              <svg
+                className="h-6 w-6 text-green-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
             </div>
-          ) : (
-            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
-                  {error}
-                </div>
+            <h3 className={styles.title} style={{ fontSize: '1.2rem' }}>Email Enviado!</h3>
+            <p className={styles.subtitle}>
+              Verifique sua caixa de entrada e siga as instruções para redefinir
+              sua senha.
+            </p>
+            <Link href="/login">
+              <button className={`${styles.submitBtn} ${styles.btnOutline}`} style={{background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'white'}}>
+                Voltar para Login
+              </button>
+            </Link>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)}>
+            {error && (
+              <div className={`${styles.message} ${styles.error}`}>
+                {error}
+              </div>
+            )}
+
+            <div className={styles.formGroup}>
+              <label htmlFor="email" className={styles.label}>
+                EMAIL
+              </label>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                {...register("email")}
+                className={styles.input}
+                placeholder="seu@email.com"
+              />
+              {errors.email && (
+                <span className={styles.requirements} style={{ color: '#fca5a5', display: 'block', marginTop: '5px' }}>
+                  {errors.email.message}
+                </span>
               )}
-
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-[#00404f]"
-                >
-                  Email
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    {...register("email")}
-                    className={`appearance-none block w-full px-3 py-2 border ${
-                      errors.email ? "border-red-300" : "border-gray-300"
-                    } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#00bafa] focus:border-[#00bafa] sm:text-sm`}
-                  />
-                  {errors.email && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full flex justify-center py-2 px-4"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                      Enviando...
-                    </>
-                  ) : (
-                    "Enviar Link"
-                  )}
-                </Button>
-              </div>
-            </form>
-          )}
-
-          {!isSuccess && (
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">
-                    Lembrou sua senha?
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-6 text-center">
-                <Link
-                  href="/login"
-                  className="font-medium text-[#00bafa] hover:text-[#009ac9]"
-                >
-                  Voltar para o Login
-                </Link>
-              </div>
             </div>
-          )}
-        </div>
+
+            <button
+              type="submit"
+              className={styles.submitBtn}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="animate-spin h-4 w-4" /> Enviando...
+                </span>
+              ) : (
+                "Enviar Link"
+              )}
+            </button>
+          </form>
+        )}
+
+        {!isSuccess && (
+          <div className="mt-6 text-center">
+            <Link
+              href="/login"
+              className={styles.forgotPass}
+              style={{ textAlign: 'center', float: 'none' }}
+            >
+              Voltar para o Login
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

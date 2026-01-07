@@ -20,3 +20,16 @@ export function formatDate(date: string | Date): string {
     year: "numeric",
   }).format(d);
 }
+
+export function getFullImageUrl(url?: string | null): string | undefined {
+  if (!url) return undefined;
+  if (url.startsWith("http") || url.startsWith("https") || url.startsWith("blob:")) return url;
+  
+  // Clean base URL (remove trailing slash)
+  const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000").replace(/\/$/, "");
+  
+  // Clean path (remove leading slash)
+  const cleanPath = url.startsWith("/") ? url.substring(1) : url;
+  
+  return `${baseUrl}/${cleanPath}`;
+}

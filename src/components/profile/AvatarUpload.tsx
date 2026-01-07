@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import Cropper from "react-easy-crop";
 import { getCroppedImg } from "@/lib/canvasUtils";
 import { toast } from "sonner";
+import { getFullImageUrl } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -118,12 +119,12 @@ export function AvatarUpload({ user }: AvatarUploadProps) {
       <Dialog open={isCropperOpen} onOpenChange={(open) => {
           if(!open) handleCancelCrop();
       }}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-[#06181b] border border-white/10">
           <DialogHeader>
-            <DialogTitle className="text-[#00404f]">Ajustar Foto</DialogTitle>
+            <DialogTitle className="text-white">Ajustar Foto</DialogTitle>
           </DialogHeader>
 
-          <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden my-4 ring-1 ring-[#00404f]/10">
+          <div className="relative w-full h-64 bg-[#020809] rounded-lg overflow-hidden my-4 ring-1 ring-white/10">
             {imageSrc && (
               <Cropper
                 image={imageSrc}
@@ -139,7 +140,7 @@ export function AvatarUpload({ user }: AvatarUploadProps) {
             )}
           </div>
 
-          <div className="flex items-center gap-2 mb-4 text-[#00404f]">
+          <div className="flex items-center gap-2 mb-4 text-[#32d6a5]">
             <ZoomOut size={16} />
             <input
               type="range"
@@ -149,16 +150,16 @@ export function AvatarUpload({ user }: AvatarUploadProps) {
               step={0.1}
               aria-labelledby="Zoom"
               onChange={(e) => setZoom(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#00404f]"
+              className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#32d6a5]"
             />
             <ZoomIn size={16} />
           </div>
 
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="ghost" onClick={handleCancelCrop}>
+            <Button variant="ghost" onClick={handleCancelCrop} className="text-gray-400 hover:text-white hover:bg-white/5">
               Cancelar
             </Button>
-            <Button onClick={handleSaveCrop} variant="primary">
+            <Button onClick={handleSaveCrop} className="bg-[#32d6a5] text-[#020809] hover:bg-[#20bca3]">
               {isUploadingAvatar ? (
                   <>
                     <Loader2 className="animate-spin mr-2 h-4 w-4" />
@@ -171,21 +172,21 @@ export function AvatarUpload({ user }: AvatarUploadProps) {
       </Dialog>
 
       <div className="relative group">
-        <Avatar className="w-32 h-32 border-4 border-[#F8FAFC] shadow-xl">
+        <Avatar className="w-32 h-32 border-4 border-[#06181b] shadow-2xl shadow-[#32d6a5]/10">
           <AvatarImage
-            src={user?.avatarUrl}
+            src={getFullImageUrl(user?.avatarUrl)}
             alt="Profile"
             className="object-cover"
           />
-          <AvatarFallback className="text-4xl font-bold text-[#00404f] bg-white">
+          <AvatarFallback className="text-4xl font-bold text-[#32d6a5] bg-[#32d6a5]/10">
             {(user?.fullName || "U").charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
 
-        <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+        <div className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-sm">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="p-2 bg-white/20 text-white rounded-full hover:bg-white/40 transition-colors"
+            className="p-2 bg-white/10 text-white rounded-full hover:bg-[#32d6a5] hover:text-[#020809] transition-all"
             title="Alterar foto"
             disabled={isUploadingAvatar}
           >
@@ -198,7 +199,7 @@ export function AvatarUpload({ user }: AvatarUploadProps) {
           {user?.avatarUrl && (
             <button
               onClick={handleDelete}
-              className="p-2 bg-red-500/20 text-red-500 rounded-full hover:bg-red-500/40 transition-colors"
+              className="p-2 bg-red-500/20 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all"
               title="Remover foto"
               disabled={isDeletingAvatar}
             >
@@ -221,8 +222,8 @@ export function AvatarUpload({ user }: AvatarUploadProps) {
       </div>
 
       <div className="text-center">
-        <h3 className="text-2xl font-bold text-[#00404f]">{user?.fullName}</h3>
-        <p className="text-[#00404f]/60">{user?.email}</p>
+        <h3 className="text-2xl font-bold text-white">{user?.fullName}</h3>
+        <p className="text-gray-400">{user?.email}</p>
       </div>
     </div>
   );

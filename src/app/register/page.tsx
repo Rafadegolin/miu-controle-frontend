@@ -5,10 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-
 import { toast } from "sonner";
+import styles from "@/components/auth/Auth.module.css";
 
 // Validação de senha forte
 const validatePassword = (pwd: string) => {
@@ -79,69 +77,65 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F0F9FA] flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-white!">
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-[#00404f] rounded-xl flex items-center justify-center text-[#7cddb1] font-bold text-2xl mx-auto mb-4 shadow-lg">
-            M
-          </div>
-          <h2 className="text-2xl font-bold text-[#00404f]">Crie sua conta</h2>
-          <p className="text-[#00404f]/60 text-sm mt-1">
-            Controle suas finanças de forma inteligente.
-          </p>
-        </div>
+    <div className={styles.authContainer}>
+      <div className={styles.authCard}>
+        {/* Logo */}
+        <Link href="/" className={styles.logo}>
+          <span style={{ color: "var(--primary)" }}>✦</span> Miu Controle
+        </Link>
+        
+        <h2 className={styles.title}>Crie sua conta</h2>
+        <p className={styles.subtitle}>
+          Comece a controlar sua vida financeira.
+        </p>
 
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+          <div className={`${styles.message} ${styles.error}`}>
             {error}
           </div>
         )}
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <label className="block text-xs font-bold text-[#00404f]/60 uppercase mb-1">
-              Nome
-            </label>
+        <form onSubmit={handleSubmit}>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>NOME</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-3 rounded-lg border border-[#00404f]/10 bg-[#F8FAFC] outline-none focus:border-[#3c88a0] transition-colors"
+              className={styles.input}
               placeholder="Seu nome"
               required
             />
           </div>
-          <div>
-            <label className="block text-xs font-bold text-[#00404f]/60 uppercase mb-1">
-              Email
-            </label>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>EMAIL</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 rounded-lg border border-[#00404f]/10 bg-[#F8FAFC] outline-none focus:border-[#3c88a0] transition-colors"
+              className={styles.input}
               placeholder="seu@email.com"
               required
             />
           </div>
-          <div>
-            <label className="block text-xs font-bold text-[#00404f]/60 uppercase mb-1">
-              Senha
-            </label>
-            <div className="relative">
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>SENHA</label>
+            <div className={styles.inputWrapper}>
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onFocus={() => setShowPasswordRequirements(true)}
-                className="w-full p-3 rounded-lg border border-[#00404f]/10 bg-[#F8FAFC] outline-none focus:border-[#3c88a0] transition-colors pr-10"
+                className={styles.input}
                 placeholder="••••••••"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#00404f]/40 hover:text-[#00404f] transition-colors"
+                className={styles.inputIconBtn}
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
@@ -149,51 +143,44 @@ export default function RegisterPage() {
             
             {/* Requisitos de senha */}
             {showPasswordRequirements && (
-              <div className="mt-2 p-3 rounded-lg bg-[#F8FAFC] border border-[#00404f]/10 text-xs space-y-1">
-                <p className="font-bold text-[#00404f]/80 mb-2">A senha deve conter:</p>
-                <div className={`flex items-center gap-2 ${passwordValidation.minLength ? 'text-[#007459]' : 'text-[#00404f]/40'}`}>
+              <div className={styles.requirements}>
+                <span className={styles.reqTitle}>Sua senha deve ter:</span>
+                <div className={`${styles.reqItem} ${passwordValidation.minLength ? styles.reqMet : ''}`}>
                   <span>{passwordValidation.minLength ? '✓' : '○'}</span>
                   <span>Mínimo 8 caracteres</span>
                 </div>
-                <div className={`flex items-center gap-2 ${passwordValidation.hasUpper ? 'text-[#007459]' : 'text-[#00404f]/40'}`}>
+                <div className={`${styles.reqItem} ${passwordValidation.hasUpper ? styles.reqMet : ''}`}>
                   <span>{passwordValidation.hasUpper ? '✓' : '○'}</span>
-                  <span>Letra maiúscula (A-Z)</span>
+                  <span>Letra maiúscula</span>
                 </div>
-                <div className={`flex items-center gap-2 ${passwordValidation.hasLower ? 'text-[#007459]' : 'text-[#00404f]/40'}`}>
-                  <span>{passwordValidation.hasLower ? '✓' : '○'}</span>
-                  <span>Letra minúscula (a-z)</span>
-                </div>
-                <div className={`flex items-center gap-2 ${passwordValidation.hasNumber ? 'text-[#007459]' : 'text-[#00404f]/40'}`}>
+                <div className={`${styles.reqItem} ${passwordValidation.hasNumber ? styles.reqMet : ''}`}>
                   <span>{passwordValidation.hasNumber ? '✓' : '○'}</span>
-                  <span>Número (0-9)</span>
+                  <span>Número</span>
                 </div>
-                <div className={`flex items-center gap-2 ${passwordValidation.hasSymbol ? 'text-[#007459]' : 'text-[#00404f]/40'}`}>
+                <div className={`${styles.reqItem} ${passwordValidation.hasSymbol ? styles.reqMet : ''}`}>
                   <span>{passwordValidation.hasSymbol ? '✓' : '○'}</span>
                   <span>Símbolo (@$!%*?&)</span>
                 </div>
               </div>
             )}
           </div>
-          <Button
+
+          <button
             type="submit"
-            variant="primary"
-            className="w-full py-3 mt-2"
+            className={styles.submitBtn}
             disabled={loading}
           >
             {loading ? "Criando conta..." : "Começar Agora"}
-          </Button>
+          </button>
         </form>
 
-        <p className="text-center text-sm text-[#00404f]/60 mt-6">
-          Já tem conta?{" "}
-          <Link
-            href="/login"
-            className="font-bold text-[#00404f] hover:underline"
-          >
+        <p className={styles.signupLink}>
+          Já tem conta?
+          <Link href="/login">
             Fazer login
           </Link>
         </p>
-      </Card>
+      </div>
     </div>
   );
 }
