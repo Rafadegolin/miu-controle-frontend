@@ -14,8 +14,8 @@ interface AuthContextType {
   user: ApiUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (data: LoginDto) => Promise<void>;
-  register: (data: RegisterDto) => Promise<void>;
+  login: (data: LoginDto) => Promise<ApiUser>;
+  register: (data: RegisterDto) => Promise<ApiUser>;
   logout: () => Promise<void>;
   updateUser: (data: Partial<ApiUser>) => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -63,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await api.login(data);
       setUser(response.user);
       setIsAuthenticated(true);
+      return response.user;
     } catch (error) {
       console.error("Login failed:", error);
       throw error;
@@ -77,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await api.register(data);
       setUser(response.user);
       setIsAuthenticated(true);
+      return response.user;
     } catch (error) {
       console.error("Register failed:", error);
       throw error;

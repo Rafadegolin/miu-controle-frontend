@@ -53,9 +53,10 @@ export default function RegisterPage() {
     }
 
     try {
-      await register({ email, password, fullName: name });
+      const user = await register({ email, password, fullName: name });
       toast.success("Conta criada com sucesso! Bem-vindo!");
-      router.push("/dashboard");
+      // New users always go to onboarding
+      router.push("/onboarding");
     } catch (err: any) {
       console.error("Register error:", err);
       const errorMessage = err.response?.data?.message;

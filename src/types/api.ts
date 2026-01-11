@@ -58,6 +58,7 @@ export interface User {
   subscriptionTier: SubscriptionTier;
   emailVerified: boolean;
   preferredCurrency: string;
+  hasCompletedOnboarding?: boolean;
   createdAt: string;
   updatedAt: string;
 }

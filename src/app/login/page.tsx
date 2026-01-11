@@ -23,9 +23,14 @@ export default function LoginPage() {
     setError("");
 
     try {
-      await login({ email, password });
+      const user = await login({ email, password });
       toast.success("Bem-vindo de volta!");
-      router.push("/dashboard");
+      
+      if (user.hasCompletedOnboarding === false) {
+          router.push("/onboarding");
+      } else {
+          router.push("/dashboard");
+      }
     } catch (err: any) {
       console.error("Login error:", err);
       const msg = err.response?.data?.message || "Erro ao fazer login. Verifique suas credenciais.";

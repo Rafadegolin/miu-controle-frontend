@@ -96,6 +96,31 @@ class ApiService {
         return Promise.reject(error);
       }
     );
+
+  }
+
+  // ============================================
+  // GENERIC HTTP METHODS
+  // ============================================
+
+  public async get<T>(url: string, config?: any): Promise<T> {
+    const response = await this.api.get<T>(url, config);
+    return response.data;
+  }
+
+  public async post<T>(url: string, data?: any, config?: any): Promise<T> {
+    const response = await this.api.post<T>(url, data, config);
+    return response.data;
+  }
+
+  public async patch<T>(url: string, data?: any, config?: any): Promise<T> {
+    const response = await this.api.patch<T>(url, data, config);
+    return response.data;
+  }
+
+  public async delete<T>(url: string, config?: any): Promise<T> {
+    const response = await this.api.delete<T>(url, config);
+    return response.data;
   }
 
   // ============================================
