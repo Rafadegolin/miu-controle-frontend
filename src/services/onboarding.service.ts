@@ -1,5 +1,5 @@
 
-import { api } from '@/services/api';
+import { apiClient as api } from '@/services/api-client';
 
 export interface OnboardingStatus {
   hasCompletedOnboarding: boolean;
@@ -35,7 +35,7 @@ export const onboardingService = {
       const avatarRes = await api.post<{ avatarUrl: string }>('/users/me/avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      avatarUrl = avatarRes.avatarUrl;
+      avatarUrl = avatarRes.data.avatarUrl;
     }
 
     // 2. Complete Onboarding with UNIFIED payload
@@ -57,6 +57,6 @@ export const onboardingService = {
     console.log('Completing onboarding with UNIFIED payload:', JSON.stringify(payload, null, 2));
 
     const response = await api.post<any>('/onboarding/complete', payload);
-    return response;
+    return response.data;
   }
 };
