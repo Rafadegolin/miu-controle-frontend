@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import type { PurchaseLink, AddPurchaseLinkDto } from "@/types/api";
+import styles from "@/components/dashboard/styles/Dashboard.module.css";
 
 interface PurchaseLinksManagerProps {
   links: PurchaseLink[];
@@ -96,8 +97,8 @@ export function PurchaseLinksManager({
       {/* Header com total */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-bold text-[#00404f]">Links de Compra</h3>
-          <p className="text-sm text-[#00404f]/60">
+          <h3 className="text-lg font-bold text-white">Links de Compra</h3>
+          <p className="text-sm text-gray-400">
             {links.length} {links.length === 1 ? "item" : "itens"} •
             {totalPrice > 0 && ` R$ ${totalPrice.toFixed(2)} total`}
           </p>
@@ -116,23 +117,23 @@ export function PurchaseLinksManager({
 
       {/* Formulário */}
       {showForm && (
-        <Card className="p-4 border-2 border-[#7cddb1]/30">
+        <Card className="p-4 border border-white/10 bg-[#0b1215]">
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="font-bold text-[#00404f]">
+              <h4 className="font-bold text-white">
                 {editingId ? "Editar Link" : "Novo Link"}
               </h4>
               <button
                 type="button"
                 onClick={resetForm}
-                className="text-[#00404f]/60 hover:text-[#00404f]"
+                className="text-gray-400 hover:text-white"
               >
                 <X size={20} />
               </button>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#00404f]/60 uppercase mb-1">
+              <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
                 Título *
               </label>
               <input
@@ -141,7 +142,7 @@ export function PurchaseLinksManager({
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
-                className="w-full p-2 rounded-lg border border-[#00404f]/10 bg-white outline-none focus:border-[#3c88a0] text-sm"
+                className="w-full p-2 rounded-lg border border-white/10 bg-white/5 outline-none focus:border-[#32d6a5]/50 text-sm text-white placeholder:text-gray-500"
                 placeholder="Ex: MacBook Pro M3"
                 maxLength={200}
                 required
@@ -149,7 +150,7 @@ export function PurchaseLinksManager({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#00404f]/60 uppercase mb-1">
+              <label className="block text-xs font-bold text-gray-400 uppercase mb-1">
                 URL *
               </label>
               <input
@@ -158,7 +159,7 @@ export function PurchaseLinksManager({
                 onChange={(e) =>
                   setFormData({ ...formData, url: e.target.value })
                 }
-                className="w-full p-2 rounded-lg border border-[#00404f]/10 bg-white outline-none focus:border-[#3c88a0] text-sm"
+                className="w-full p-2 rounded-lg border border-white/10 bg-white/5 outline-none focus:border-[#32d6a5]/50 text-sm text-white placeholder:text-gray-500"
                 placeholder="https://..."
                 required
               />
@@ -182,7 +183,7 @@ export function PurchaseLinksManager({
                         : undefined,
                     })
                   }
-                  className="w-full p-2 rounded-lg border border-[#00404f]/10 bg-white outline-none focus:border-[#3c88a0] text-sm"
+                  className="w-full p-2 rounded-lg border border-white/10 bg-white/5 outline-none focus:border-[#32d6a5]/50 text-sm text-white placeholder:text-gray-500"
                   placeholder="0.00"
                 />
               </div>
@@ -195,7 +196,7 @@ export function PurchaseLinksManager({
                   onChange={(e) =>
                     setFormData({ ...formData, currency: e.target.value })
                   }
-                  className="w-full p-2 rounded-lg border border-[#00404f]/10 bg-white outline-none focus:border-[#3c88a0] text-sm"
+                  className="w-full p-2 rounded-lg border border-white/10 bg-[#0b1215] outline-none focus:border-[#32d6a5]/50 text-sm text-white"
                 >
                   <option value="BRL">BRL</option>
                   <option value="USD">USD</option>
@@ -213,7 +214,7 @@ export function PurchaseLinksManager({
                 onChange={(e) =>
                   setFormData({ ...formData, note: e.target.value })
                 }
-                className="w-full p-2 rounded-lg border border-[#00404f]/10 bg-white outline-none focus:border-[#3c88a0] text-sm resize-none"
+                className="w-full p-2 rounded-lg border border-white/10 bg-white/5 outline-none focus:border-[#32d6a5]/50 text-sm text-white placeholder:text-gray-500 resize-none"
                 placeholder="Observações sobre este item..."
                 rows={2}
                 maxLength={500}
@@ -250,9 +251,9 @@ export function PurchaseLinksManager({
       {links.length > 0 ? (
         <div className="space-y-2">
           {links.map((link) => (
-            <Card
+            <div
               key={link.id}
-              className="p-4 hover:shadow-md transition-shadow"
+              className={`${styles.listItem} bg-[#0b1215] rounded-xl px-4 py-3 hover:bg-white/5 transition-colors`}
             >
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 bg-[#00404f]/5 rounded-lg flex items-center justify-center shrink-0">
@@ -305,13 +306,14 @@ export function PurchaseLinksManager({
                   </div>
                 </div>
               </div>
-            </Card>
+              </div>
+
           ))}
         </div>
       ) : !showForm ? (
-        <div className="text-center py-12 border-2 border-dashed border-[#00404f]/10 rounded-2xl">
-          <ShoppingCart size={48} className="text-[#00404f]/20 mx-auto mb-3" />
-          <p className="text-[#00404f]/60 mb-4">
+        <div className={`text-center py-12 border-2 border-dashed border-white/10 rounded-2xl ${styles.glassCard}`}>
+          <ShoppingCart size={48} className="text-gray-600 mx-auto mb-3" />
+          <p className="text-gray-400 mb-4">
             Nenhum link de compra adicionado
           </p>
           <Button

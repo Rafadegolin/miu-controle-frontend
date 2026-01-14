@@ -9,6 +9,7 @@ import styles from "@/components/dashboard/styles/Dashboard.module.css";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { Home, Wallet, PieChart, User } from "lucide-react";
+import { LevelWidget } from "@/components/gamification/LevelWidget";
 
 export default function DashboardLayout({
   children,
@@ -57,6 +58,7 @@ export default function DashboardLayout({
             </div>
 
             <div className={styles.headerActions}>
+              <LevelWidget />
               <button className={styles.iconBtn}>
                  <Plus size={20} />
               </button>

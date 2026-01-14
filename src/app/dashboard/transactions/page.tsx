@@ -68,7 +68,15 @@ export default function TransactionsPage() {
                 api.getMonthlyStats({ month: monthStr })
             ]);
 
-            setTransactions(transactionsData);
+            if (Array.isArray(transactionsData)) {
+                setTransactions(transactionsData);
+            } else if ((transactionsData as any)?.data && Array.isArray((transactionsData as any).data)) {
+                // Determine if response is paginated/wrapped
+                setTransactions((transactionsData as any).data);
+            } else {
+                console.error("Invalid transactions data format:", transactionsData);
+                setTransactions([]);
+            }
             setStats(statsData);
         } catch (error) {
             console.error("Failed to load transactions data", error);
@@ -113,7 +121,7 @@ export default function TransactionsPage() {
     const handlePreviousMonth = () => setCurrentDate(subMonths(currentDate, 1));
     const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
 
-    const filteredTransactions = transactions.filter(tx => {
+    const filteredTransactions = (Array.isArray(transactions) ? transactions : []).filter(tx => {
         if (!searchTerm) return true;
         const searchLower = searchTerm.toLowerCase();
         return (

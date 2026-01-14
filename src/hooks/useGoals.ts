@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/services/api";
+import { goalsActions } from "@/services/goals.actions";
 import type {
-  Goal,
   CreateGoalDto,
   AddPurchaseLinkDto,
   ContributeGoalDto,
@@ -10,14 +9,14 @@ import type {
 export function useGoals(status?: string) {
   return useQuery({
     queryKey: ["goals", status],
-    queryFn: () => api.getGoals(status),
+    queryFn: () => goalsActions.getGoals(status),
   });
 }
 
 export function useGoal(id: string) {
   return useQuery({
     queryKey: ["goals", id],
-    queryFn: () => api.getGoal(id),
+    queryFn: () => goalsActions.getGoal(id),
     enabled: !!id,
   });
 }
@@ -25,7 +24,7 @@ export function useGoal(id: string) {
 export function useGoalsSummary() {
   return useQuery({
     queryKey: ["goals", "summary"],
-    queryFn: () => api.getGoalsSummary(),
+    queryFn: () => goalsActions.getGoalsSummary(),
   });
 }
 
@@ -33,7 +32,7 @@ export function useCreateGoal() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateGoalDto) => api.createGoal(data),
+    mutationFn: (data: CreateGoalDto) => goalsActions.createGoal(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["goals"] });
     },
@@ -45,7 +44,7 @@ export function useUpdateGoal() {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<CreateGoalDto> }) =>
-      api.updateGoal(id, data),
+      goalsActions.updateGoal(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["goals"] });
       queryClient.invalidateQueries({ queryKey: ["goals", variables.id] });
@@ -57,7 +56,7 @@ export function useDeleteGoal() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => api.deleteGoal(id),
+    mutationFn: (id: string) => goalsActions.deleteGoal(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["goals"] });
     },
@@ -69,7 +68,7 @@ export function useContributeToGoal() {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: ContributeGoalDto }) =>
-      api.contributeToGoal(id, data),
+      goalsActions.contributeToGoal(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["goals"] });
       queryClient.invalidateQueries({ queryKey: ["goals", variables.id] });
@@ -83,7 +82,7 @@ export function useUploadGoalImage() {
 
   return useMutation({
     mutationFn: ({ id, file }: { id: string; file: File }) =>
-      api.uploadGoalImage(id, file),
+      goalsActions.uploadGoalImage(id, file),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["goals"] });
       queryClient.invalidateQueries({ queryKey: ["goals", variables.id] });
@@ -95,7 +94,7 @@ export function useDeleteGoalImage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => api.deleteGoalImage(id),
+    mutationFn: (id: string) => goalsActions.deleteGoalImage(id),
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["goals"] });
       queryClient.invalidateQueries({ queryKey: ["goals", id] });
@@ -114,7 +113,7 @@ export function useAddPurchaseLink() {
     }: {
       goalId: string;
       data: AddPurchaseLinkDto;
-    }) => api.addPurchaseLink(goalId, data),
+    }) => goalsActions.addPurchaseLink(goalId, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["goals"] });
       queryClient.invalidateQueries({ queryKey: ["goals", variables.goalId] });
@@ -134,7 +133,7 @@ export function useUpdatePurchaseLink() {
       goalId: string;
       linkId: string;
       data: Partial<AddPurchaseLinkDto>;
-    }) => api.updatePurchaseLink(goalId, linkId, data),
+    }) => goalsActions.updatePurchaseLink(goalId, linkId, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["goals"] });
       queryClient.invalidateQueries({ queryKey: ["goals", variables.goalId] });
@@ -147,7 +146,7 @@ export function useDeletePurchaseLink() {
 
   return useMutation({
     mutationFn: ({ goalId, linkId }: { goalId: string; linkId: string }) =>
-      api.deletePurchaseLink(goalId, linkId),
+      goalsActions.deletePurchaseLink(goalId, linkId),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["goals"] });
       queryClient.invalidateQueries({ queryKey: ["goals", variables.goalId] });
@@ -158,7 +157,7 @@ export function useDeletePurchaseLink() {
 export function usePurchaseLinksSummary(goalId: string) {
   return useQuery({
     queryKey: ["goals", goalId, "purchase-links-summary"],
-    queryFn: () => api.getPurchaseLinksSummary(goalId),
+    queryFn: () => goalsActions.getPurchaseLinksSummary(goalId),
     enabled: !!goalId,
   });
 }

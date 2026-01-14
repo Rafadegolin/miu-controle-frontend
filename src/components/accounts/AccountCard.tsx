@@ -7,6 +7,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import styles from "@/components/dashboard/styles/Dashboard.module.css";
 
 interface AccountCardProps {
     account: Account;
@@ -45,7 +46,7 @@ const getAccountTypeLabel = (type: AccountType) => {
 
 export function AccountCard({ account, onEdit, onDelete }: AccountCardProps) {
     return (
-        <div className="relative overflow-hidden group hover:translate-y-[-4px] transition-all duration-300 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+        <div className={`${styles.glassCard} relative overflow-hidden group hover:translate-y-[-4px] transition-all duration-300 min-h-[160px] flex flex-col justify-between`}>
             {/* Color Accent Indicator */}
             <div 
                 className="absolute top-0 left-0 w-1.5 h-full opacity-60 group-hover:opacity-100 transition-opacity settings-color-bar"
@@ -54,9 +55,9 @@ export function AccountCard({ account, onEdit, onDelete }: AccountCardProps) {
             
             <div className="p-5">
                 <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
                         <div 
-                            className="p-3 rounded-xl text-white shadow-lg bg-white/10"
+                            className="p-3 rounded-xl text-white shadow-lg bg-white/10 shrink-0"
                             style={{ 
                                 backgroundColor: account.color ? `${account.color}20` : '#32d6a520', 
                                 color: account.color || '#32d6a5' 
@@ -64,11 +65,11 @@ export function AccountCard({ account, onEdit, onDelete }: AccountCardProps) {
                         >
                             {getAccountIcon(account.type)}
                         </div>
-                        <div>
-                            <h4 className="font-bold text-lg text-white group-hover:text-[#32d6a5] transition-colors">
+                        <div className="min-w-0 flex-1">
+                            <h4 className="font-bold text-lg text-white group-hover:text-[#32d6a5] transition-colors truncate">
                                 {account.name}
                             </h4>
-                            <p className="text-xs text-gray-400 font-medium">
+                            <p className="text-xs text-gray-400 font-medium truncate">
                                 {getAccountTypeLabel(account.type)}
                             </p>
                         </div>
