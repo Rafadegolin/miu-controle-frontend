@@ -355,6 +355,10 @@ export interface CreateRecurringTransactionDto {
   autoCreate?: boolean;
 }
 
+export interface CorrectCategoryDto {
+  correctedCategoryId: string;
+}
+
 // === STATS ===
 
 export interface CategoryStats {

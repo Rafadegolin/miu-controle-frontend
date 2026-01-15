@@ -70,6 +70,8 @@ export default function TransactionsPage() {
 
             if (Array.isArray(transactionsData)) {
                 setTransactions(transactionsData);
+            } else if ((transactionsData as any)?.items && Array.isArray((transactionsData as any).items)) {
+                setTransactions((transactionsData as any).items);
             } else if ((transactionsData as any)?.data && Array.isArray((transactionsData as any).data)) {
                 // Determine if response is paginated/wrapped
                 setTransactions((transactionsData as any).data);

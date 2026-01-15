@@ -119,13 +119,13 @@ export function AiSettingsManager() {
                     value={config.categorizationModel} 
                     onValueChange={(val) => setConfig({ ...config, categorizationModel: val })}
                   >
-                    <SelectTrigger className="bg-[#0f172a] border-white/10 text-white">
+                    <SelectTrigger className="bg-[#0f172a] border-white/10 text-white cursor-pointer">
                       <SelectValue placeholder="Selecione..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#0f172a] border-[#334155] text-white">
-                      <SelectItem value={AiModel.GPT_4O_MINI}>GPT-4o Mini (Recomendado)</SelectItem>
-                      <SelectItem value={AiModel.GEMINI_1_5_FLASH}>Gemini 1.5 Flash (Rápido)</SelectItem>
-                      <SelectItem value={AiModel.GPT_4O}>GPT-4o (Preciso/Caro)</SelectItem>
+                    <SelectContent className="bg-[#06181b] border border-white/10 text-white">
+                      <SelectItem value={AiModel.GPT_4O_MINI} className="focus:bg-white/10 focus:text-white cursor-pointer">GPT-4o Mini (Recomendado)</SelectItem>
+                      <SelectItem value={AiModel.GEMINI_1_5_FLASH} className="focus:bg-white/10 focus:text-white cursor-pointer">Gemini 1.5 Flash (Rápido)</SelectItem>
+                      <SelectItem value={AiModel.GPT_4O} className="focus:bg-white/10 focus:text-white cursor-pointer">GPT-4o (Preciso/Caro)</SelectItem>
                     </SelectContent>
                   </Select>
               </div>
@@ -137,13 +137,13 @@ export function AiSettingsManager() {
                     value={config.analyticsModel} 
                     onValueChange={(val) => setConfig({ ...config, analyticsModel: val })}
                   >
-                    <SelectTrigger className="bg-[#0f172a] border-white/10 text-white">
+                    <SelectTrigger className="bg-[#0f172a] border-white/10 text-white cursor-pointer">
                       <SelectValue placeholder="Selecione..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#0f172a] border-[#334155] text-white">
-                      <SelectItem value={AiModel.GPT_4O}>GPT-4o (Melhor Raciocínio)</SelectItem>
-                      <SelectItem value={AiModel.GEMINI_1_5_PRO}>Gemini 1.5 Pro (Maior Contexto)</SelectItem>
-                      <SelectItem value={AiModel.GEMINI_1_5_FLASH}>Gemini 1.5 Flash (Rápido)</SelectItem>
+                    <SelectContent className="bg-[#06181b] border border-white/10 text-white">
+                      <SelectItem value={AiModel.GPT_4O} className="focus:bg-white/10 focus:text-white cursor-pointer">GPT-4o (Melhor Raciocínio)</SelectItem>
+                      <SelectItem value={AiModel.GEMINI_1_5_PRO} className="focus:bg-white/10 focus:text-white cursor-pointer">Gemini 1.5 Pro (Maior Contexto)</SelectItem>
+                      <SelectItem value={AiModel.GEMINI_1_5_FLASH} className="focus:bg-white/10 focus:text-white cursor-pointer">Gemini 1.5 Flash (Rápido)</SelectItem>
                     </SelectContent>
                   </Select>
               </div>
@@ -218,7 +218,7 @@ export function AiSettingsManager() {
           <Button 
             onClick={handleSave} 
             disabled={saving}
-            className="bg-[#32d6a5] hover:bg-[#2bc293] text-[#020809] font-bold px-8 py-6 rounded-xl text-lg shadow-[0_0_20px_rgba(50,214,165,0.3)] hover:shadow-[0_0_30px_rgba(50,214,165,0.5)] transition-all active:scale-95"
+            className="cursor-pointer bg-[#32d6a5] hover:bg-[#2bc293] text-[#020809] font-bold px-8 py-6 rounded-xl text-lg shadow-[0_0_20px_rgba(50,214,165,0.3)] hover:shadow-[0_0_30px_rgba(50,214,165,0.5)] transition-all active:scale-95"
           >
              {saving ? <Loader2 className="animate-spin mr-2" /> : "Salvar Configurações"}
           </Button>

@@ -63,7 +63,7 @@ export default function SettingsPage() {
             <Button
               variant="ghost"
               onClick={() => setActiveSection(null)}
-              className="p-2 h-10 w-10 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl"
+              className="cursor-pointer p-2 h-10 w-10 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl"
             >
               <ChevronLeft size={20} />
             </Button>

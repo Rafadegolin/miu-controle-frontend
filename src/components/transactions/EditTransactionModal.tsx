@@ -153,6 +153,14 @@ export function EditTransactionModal({
         status: transaction.status,
       });
 
+      // Check for category correction if the category has changed
+      if (values.categoryId !== transaction.categoryId) {
+        // We don't await this to fail the main update, but we log errors
+        api.correctTransactionCategory(transaction.id, {
+          correctedCategoryId: values.categoryId
+        }).catch(err => console.error("Failed to submit category correction feedback", err));
+      }
+
       onSuccess();
       onClose();
     } catch (error) {

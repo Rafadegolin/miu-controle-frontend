@@ -15,6 +15,10 @@ export const transactionsActions = {
     return response.data;
   },
 
+  async correctTransactionCategory(id: string, data: { correctedCategoryId: string }): Promise<void> {
+    await apiClient.post(`/transactions/${id}/correct-category`, data);
+  },
+
   async getTransaction(id: string): Promise<Transaction> {
     const response = await apiClient.get<Transaction>(`/transactions/${id}`);
     return response.data;
