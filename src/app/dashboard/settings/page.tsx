@@ -11,11 +11,13 @@ import {
   LogOut,
   ChevronRight,
   ChevronLeft,
+  Sparkles,
 } from "lucide-react";
 import styles from "@/components/dashboard/styles/Dashboard.module.css";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { SessionManager } from "@/components/settings/SessionManager";
+import { AiSettingsManager } from "@/components/settings/AiSettingsManager";
 
 export default function SettingsPage() {
   const { logout } = useAuth();
@@ -27,7 +29,33 @@ export default function SettingsPage() {
     router.push("/");
   };
 
-  if (activeSection === "security") {
+  const renderActiveSection = () => {
+    switch (activeSection) {
+      case "security":
+        return (
+            <div className="grid gap-6 animate-slide-up-fade">
+               <SessionManager />
+            </div>
+        );
+      case "ai":
+        return (
+            <div className="grid gap-6 animate-slide-up-fade">
+               <AiSettingsManager />
+            </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const getSectionTitle = () => {
+      if (activeSection === "security") return { title: "Segurança", subtitle: "Gerencie suas sessões e privacidade" };
+      if (activeSection === "ai") return { title: "Miu AI", subtitle: "Configure a inteligência do seu assistente" };
+      return { title: "", subtitle: "" };
+  }
+
+  if (activeSection) {
+    const { title, subtitle } = getSectionTitle();
     return (
       <div className={styles.scrollableArea}>
         <div className="max-w-4xl mx-auto space-y-8 pb-10">
@@ -40,14 +68,12 @@ export default function SettingsPage() {
               <ChevronLeft size={20} />
             </Button>
             <div>
-               <h2 className="text-2xl font-bold text-white">Segurança</h2>
-               <p className="text-sm text-gray-400">Gerencie suas sessões e privacidade</p>
+               <h2 className="text-2xl font-bold text-white">{title}</h2>
+               <p className="text-sm text-gray-400">{subtitle}</p>
             </div>
           </div>
           
-          <div className="grid gap-6 animate-slide-up-fade">
-            <SessionManager />
-          </div>
+          {renderActiveSection()}
         </div>
       </div>
     );
@@ -76,6 +102,13 @@ export default function SettingsPage() {
               sub: "Alertas de gastos e metas",
               active: true,
             },
+            {
+              id: "ai",
+              icon: Sparkles,
+              label: "Inteligência Artificial",
+              sub: "Modelos, Chaves e Preferências",
+              highlight: true,
+            },
             { 
               id: "security",
               icon: Lock, 
@@ -91,14 +124,14 @@ export default function SettingsPage() {
           ].map((item, i) => (
             <div
               key={i}
-              className="group flex items-center justify-between p-5 rounded-2xl bg-[#06181b] border border-white/10 cursor-pointer hover:border-[#32d6a5]/50 hover:bg-[#082025] transition-all duration-300 relative overflow-hidden"
-              onClick={() => item.id === "security" && setActiveSection("security")}
+              className={`group flex items-center justify-between p-5 rounded-2xl bg-[#06181b] border border-white/10 cursor-pointer hover:border-[#32d6a5]/50 hover:bg-[#082025] transition-all duration-300 relative overflow-hidden ${item.highlight ? 'border-[#32d6a5]/30' : ''}`}
+              onClick={() => (item.id === "security" || item.id === "ai") && setActiveSection(item.id)}
             >
               {/* Glow Effect */}
               <div className="absolute inset-0 bg-linear-to-r from-[#32d6a5]/0 via-[#32d6a5]/5 to-[#32d6a5]/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none"></div>
 
               <div className="flex items-center gap-5 relative z-10">
-                <div className="p-3.5 bg-[#32d6a5]/10 text-[#32d6a5] rounded-xl group-hover:bg-[#32d6a5] group-hover:text-[#020809] transition-colors shadow-[0_0_15px_rgba(50,214,165,0.1)] group-hover:shadow-[0_0_20px_rgba(50,214,165,0.4)]">
+                <div className={`p-3.5 rounded-xl transition-colors shadow-[0_0_15px_rgba(50,214,165,0.1)] group-hover:shadow-[0_0_20px_rgba(50,214,165,0.4)] ${item.highlight ? 'bg-[#32d6a5] text-[#020809]' : 'bg-[#32d6a5]/10 text-[#32d6a5] group-hover:bg-[#32d6a5] group-hover:text-[#020809]'}`}>
                   <item.icon size={22} />
                 </div>
                 <div>

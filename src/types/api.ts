@@ -10,6 +10,41 @@ export enum AccountType {
   INVESTMENT = "INVESTMENT",
 }
 
+export enum AiProvider {
+  OPENAI = "OPENAI",
+  GEMINI = "GEMINI",
+}
+
+export enum AiModel {
+  GPT_4O = "gpt-4o",
+  GPT_4O_MINI = "gpt-4o-mini",
+  GEMINI_1_5_FLASH = "gemini-1.5-flash",
+  GEMINI_1_5_PRO = "gemini-1.5-pro",
+}
+
+export interface AiConfig {
+  configured: boolean;
+  isAiEnabled: boolean;
+  categorizationModel: string;
+  analyticsModel: string;
+  hasOpenAiKey: boolean;
+  hasGeminiKey: boolean;
+  monthlyTokenLimit?: number;
+}
+
+export interface UpdateAiConfigDto {
+  isAiEnabled?: boolean;
+  openaiApiKey?: string;
+  geminiApiKey?: string;
+  categorizationModel?: string;
+  analyticsModel?: string;
+}
+
+export interface AiKeyTestDto {
+  provider: AiProvider;
+  apiKey: string;
+}
+
 export enum TransactionType {
   INCOME = "INCOME",
   EXPENSE = "EXPENSE",
