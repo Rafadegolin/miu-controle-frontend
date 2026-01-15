@@ -10,6 +10,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { Home, Wallet, PieChart, User } from "lucide-react";
 import { LevelWidget } from "@/components/gamification/LevelWidget";
+import { SocketProvider } from "@/contexts/SocketContext";
+import { GamificationListener } from "@/components/gamification/GamificationListener";
+import { SyncListener } from "@/components/sync/SyncListener";
 
 export default function DashboardLayout({
   children,
@@ -21,7 +24,10 @@ export default function DashboardLayout({
 
   return (
     <ProtectedRoute>
-      <div className={styles.dashboardContainer}>
+      <SocketProvider>
+        <GamificationListener />
+        <SyncListener />
+        <div className={styles.dashboardContainer}>
         {/* DESKTOP SIDEBAR */}
         <Sidebar
           isOpen={isSidebarOpen}
@@ -116,7 +122,8 @@ export default function DashboardLayout({
              </button>
           </Link>
         </nav>
-      </div>
+        </div>
+      </SocketProvider>
     </ProtectedRoute>
   );
 }
