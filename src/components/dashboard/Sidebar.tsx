@@ -12,8 +12,12 @@ import {
   Link as LinkIcon,
   User,
   Settings,
+  Sparkles,
   LogOut,
+
   X,
+  HeartPulse,
+  Repeat,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import styles from "@/components/dashboard/styles/Dashboard.module.css";
@@ -44,6 +48,12 @@ const menuItems = [
     href: "/dashboard/reports",
   },
   {
+    id: "recommendations",
+    icon: Sparkles,
+    label: "Recomendações",
+    href: "/dashboard/recommendations",
+  },
+  {
     id: "categories",
     icon: PieChart,
     label: "Categorias",
@@ -55,12 +65,30 @@ const menuItems = [
     label: "Minhas Contas",
     href: "/dashboard/accounts",
   },
+  {
+    id: "simulator",
+    icon: TrendingUp,
+    label: "Simulador E Se",
+    href: "/dashboard/simulator",
+  },
+  {
+    id: "recurring",
+    icon: Repeat,
+    label: "Assinaturas",
+    href: "/dashboard/recurring",
+  },
   { id: "goals", icon: Target, label: "Metas", href: "/dashboard/goals" },
   {
     id: "investments",
     icon: TrendingUp,
     label: "Investimentos",
     href: "/dashboard/investments",
+  },
+  {
+    id: "financial-health",
+    icon: HeartPulse,
+    label: "Saúde Financeira",
+    href: "/dashboard/financial-health",
   },
   {
     id: "sync",
@@ -118,6 +146,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </Link>
           );
         })}
+        
+        <Link href="/dashboard/projections" onClick={onClose} style={{textDecoration: 'none'}}>
+             <div className={`${styles.navItem} ${pathname === "/dashboard/projections" ? styles.navItemActive : ""}`}>
+                <TrendingUp size={18} />
+                Projeções
+             </div>
+        </Link>
 
         <div className={styles.navSectionTitle}>CONTA</div>
           <Link href="/dashboard/profile" onClick={onClose} style={{textDecoration: 'none'}}>

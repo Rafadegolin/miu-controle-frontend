@@ -59,3 +59,16 @@ export function useToggleRecurringTransaction() {
     },
   });
 }
+
+export function useProcessRecurringTransaction() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => recurringActions.processRecurringTransaction(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["recurring-transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] }); // Update transactions list too
+      queryClient.invalidateQueries({ queryKey: ["summary"] }); // Update balance
+    },
+  });
+}

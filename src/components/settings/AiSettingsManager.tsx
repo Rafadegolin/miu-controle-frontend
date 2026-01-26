@@ -9,11 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, AlertCircle, Key, BrainCircuit, Sparkles } from "lucide-react";
 import styles from "@/components/dashboard/styles/Dashboard.module.css";
+import { AiStatsDashboard } from "@/components/settings/ai/AiStatsDashboard";
+
+type Tab = "settings" | "stats";
 
 export function AiSettingsManager() {
   const [config, setConfig] = useState<AiConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>("settings");
   
   // Key state
   const [openaiKey, setOpenaiKey] = useState("");
@@ -104,7 +108,36 @@ export function AiSettingsManager() {
         </div>
       </div>
 
-      {/* Models Section */}
+      
+      {/* Tabs */}
+      <div className="flex gap-2 p-1 bg-white/5 rounded-lg w-fit">
+        <button
+          onClick={() => setActiveTab("settings")}
+          className={`px-4 py-2 text-sm font-bold rounded-md transition-all ${
+            activeTab === "settings" 
+              ? "bg-[#32d6a5] text-[#020809]" 
+              : "text-gray-400 hover:text-white"
+          }`}
+        >
+          Configurações
+        </button>
+        <button
+          onClick={() => setActiveTab("stats")}
+          className={`px-4 py-2 text-sm font-bold rounded-md transition-all ${
+            activeTab === "stats" 
+              ? "bg-[#32d6a5] text-[#020809]" 
+              : "text-gray-400 hover:text-white"
+          }`}
+        >
+          Estatísticas & Uso
+        </button>
+      </div>
+
+      {activeTab === "stats" ? (
+        <AiStatsDashboard />
+      ) : (
+        <div className="space-y-8 animate-fade-in-up">
+            {/* Models Section */}
       <div className={`${styles.glassCard} p-6 space-y-6 opacity-90 hover:opacity-100 transition-opacity`}>
           <div className="flex items-center gap-2 mb-4">
               <BrainCircuit className="text-[#32d6a5]" size={20} />
@@ -223,6 +256,8 @@ export function AiSettingsManager() {
              {saving ? <Loader2 className="animate-spin mr-2" /> : "Salvar Configurações"}
           </Button>
       </div>
+      </div>
+      )}
     </div>
   );
 }

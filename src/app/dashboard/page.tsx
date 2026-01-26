@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useDashboard } from "@/hooks/useDashboard";
 import { CreateTransactionModal } from "@/components/transactions/CreateTransactionModal";
+import { AiForecastCard } from "@/components/dashboard/AiForecastCard";
+import { AiAnomaliesWidget } from "@/components/dashboard/AiAnomaliesWidget";
 import { formatCurrency } from "@/lib/utils";
 import {
   Wallet,
@@ -65,6 +67,8 @@ const recentTransactions = [
   { id: 4, desc: "Uber Viagem", category: "Transporte", amount: -24.50, date: "24 Out", icon: Car },
 ];
 
+import { ProactiveAlertsWidget } from "@/components/dashboard/ProactiveAlertsWidget";
+
 export default function DashboardPage() {
   const { data, isLoading, refetch } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -100,6 +104,15 @@ export default function DashboardPage() {
   return (
     <div className={styles.gridContainer}>
       
+      {/* ALERTS SECTION - Full Width */}
+      <ProactiveAlertsWidget />
+      
+      {/* AI Section - Full Width */}
+      <div className={`${styles.colSpan12} grid grid-cols-1 md:grid-cols-2 gap-6`}>
+         <AiForecastCard />
+         <AiAnomaliesWidget />
+      </div>
+
       {/* KPI Cards */}
       <div className={`${styles.glassCard} ${styles.colSpan4}`}>
         <div className={styles.cardHeader}>

@@ -1,23 +1,41 @@
 import { useQuery } from "@tanstack/react-query";
 import { reportsActions } from "@/services/reports.actions";
+import { startOfMonth, endOfMonth, format } from "date-fns";
 
-export function useMonthlyTrend(startDate: string, endDate: string) {
-  return useQuery({
-    queryKey: ["reports", "monthly-trend", startDate, endDate],
-    queryFn: () => reportsActions.getMonthlyTrend({ startDate, endDate }),
-  });
+export interface ReportsFilter {
+  startDate: Date;
+  endDate: Date;
 }
 
-export function useCategoryAnalysis(startDate: string, endDate: string) {
-  return useQuery({
-    queryKey: ["reports", "category-analysis", startDate, endDate],
-    queryFn: () => reportsActions.getCategoryAnalysis({ startDate, endDate }),
-  });
-}
+export function useReports(filters?: Partial<ReportsFilter>) {
+  // Default to current month if no dates provided
+  const now = new Date();
+  const defaultStart = startOfMonth(now);
+  const defaultEnd = endOfMonth(now);
 
-export function useDashboardReport(startDate: string, endDate: string) {
-  return useQuery({
-    queryKey: ["reports", "dashboard", startDate, endDate],
-    queryFn: () => reportsActions.getDashboardReport({ startDate, endDate }),
+  const startDate = filters?.startDate || defaultStart;
+  const endDate = filters?.endDate || defaultEnd;
+
+  // Format params for API
+  const apiParams = {
+    startDate: format(startDate, "yyyy-MM-dd"),
+    endDate: format(endDate, "yyyy-MM-dd"),
+  };
+
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ["reports", "full", apiParams.startDate, apiParams.endDate],
+    queryFn: () => reportsActions.getFullReport(apiParams),
   });
+
+  return {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    filters: {
+      startDate,
+      endDate,
+    },
+  };
 }

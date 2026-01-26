@@ -18,11 +18,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { SessionManager } from "@/components/settings/SessionManager";
 import { AiSettingsManager } from "@/components/settings/AiSettingsManager";
+import { CreateReleaseNoteModal } from "@/components/release-notes/CreateReleaseNoteModal";
 
 export default function SettingsPage() {
   const { logout } = useAuth();
   const router = useRouter();
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [isReleaseNoteOpen, setIsReleaseNoteOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -82,9 +84,16 @@ export default function SettingsPage() {
   return (
     <div className={styles.scrollableArea}>
       <div className="max-w-4xl mx-auto space-y-8 pb-10">
-        <div>
-           <h2 className="text-3xl font-bold text-white mb-2">Configurações</h2>
-           <p className="text-gray-400">Personalize sua experiência no aplicativo</p>
+        <div className="flex justify-between items-center">
+            <div>
+                <h2 className="text-3xl font-bold text-white mb-2">Configurações</h2>
+                <p className="text-gray-400">Personalize sua experiência no aplicativo</p>
+            </div>
+            {/* ADMIN ONLY TRIGGER - In real app check role */}
+            <Button variant="outline" onClick={() => setIsReleaseNoteOpen(true)} className="border-[#32d6a5]/30 text-[#32d6a5] hover:bg-[#32d6a5]/10 bg-transparent">
+                <Sparkles size={16} className="mr-2" />
+                Nova Atualização (Admin)
+            </Button>
         </div>
 
         <div className="space-y-4">
@@ -161,6 +170,8 @@ export default function SettingsPage() {
           </Button>
         </div>
       </div>
+      
+      <CreateReleaseNoteModal open={isReleaseNoteOpen} onOpenChange={setIsReleaseNoteOpen} />
     </div>
   );
 }

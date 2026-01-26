@@ -45,6 +45,79 @@ export interface AiKeyTestDto {
   apiKey: string;
 }
 
+export interface AiUsageFeatureStats {
+  tokens: number;
+  cost: number;
+  requests: number;
+}
+
+export interface AiUsageStatsResponse {
+  month: string;
+  totalTokens: number;
+  totalCost: number;
+  totalCostBRL: number;
+  byFeature: Record<string, AiUsageFeatureStats>;
+}
+
+export interface AiCategorizationStatsResponse {
+  totalPredictions: number;
+  averageConfidence: number;
+  accuracy: number;
+  correctionRate: number;
+  message: string;
+}
+
+
+
+export interface ForecastResponse {
+  available: boolean;
+  forecast: {
+    summary: string;
+    healthScore: number;
+    predictedExpense: number;
+    predictedIncome: number;
+    savingsGoal: number;
+    insights: string[];
+    recommendation: string;
+  };
+  trends: {
+    predictedExpense: number;
+    predictedIncome: number;
+    expenseTrendSlope: number;
+    incomeTrendSlope: number;
+  };
+}
+
+export interface Anomaly {
+  id: string;
+  transactionId: string;
+  risk: "LOW" | "MEDIUM" | "HIGH";
+  explanation: string;
+  isDismissed: boolean;
+  transaction: Transaction;
+  detectedAt: string;
+}
+
+export interface FinancialHealthResponse {
+  score: number;
+  level: "DIAMANTE" | "PLATINA" | "OURO" | "PRATA" | "BRONZE";
+  breakdown: {
+    savingsRate: number;
+    consistency: number;
+    budgetHealth: number;
+  };
+  history: { date: string; score: number }[];
+}
+
+export interface GoalForecastResponse {
+  goalId: string;
+  status: "COMPLETED" | "ON_TRACK" | "STALLED";
+  completionDate?: string;
+  daysRemaining?: number;
+  requiredMonthlyContribution?: number;
+  message: string;
+}
+
 export enum TransactionType {
   INCOME = "INCOME",
   EXPENSE = "EXPENSE",
@@ -80,6 +153,14 @@ export enum SubscriptionTier {
   FREE = "FREE",
   PRO = "PRO",
   FAMILY = "FAMILY",
+}
+
+export enum RecommendationType {
+  SPENDING_CUT = "SPENDING_CUT",
+  BUDGET_ADJUST = "BUDGET_ADJUST",
+  INVESTMENT = "INVESTMENT",
+  DEBT_REDUCTION = "DEBT_REDUCTION",
+  SAVING_OPPORTUNITY = "SAVING_OPPORTUNITY",
 }
 
 // === ENTIDADES ===
@@ -249,6 +330,63 @@ export interface RecurringTransaction {
   updatedAt: string;
 }
 
+export interface ReleaseNote {
+  id: string;
+  version: string;
+  title: string;
+  content: string;
+  publishedAt: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Recommendation {
+  id: string;
+  userId: string;
+  type: RecommendationType;
+  title: string;
+  description: string;
+  impact: number;
+  difficulty: number;
+  priorityScore: number;
+  status: "ACTIVE" | "APPLIED" | "DISMISSED";
+  createdAt: string;
+}
+
+export interface ProjectionMonth {
+  date: string; // YYYY-MM-DD (usually first of month)
+  income: {
+    fixed: number;
+    variable: number;
+    total: number;
+  };
+  expenses: {
+    fixed: number;
+    variable: number;
+    total: number;
+  };
+  balance: {
+    period: number;      // Result of income - expenses this month
+    accumulated: number; // Rolling balance
+  };
+  scenarios: {
+    optimistic: number;  // Accumulated balance in optimistic scenario
+    pessimistic: number; // Accumulated balance in pessimistic scenario
+  };
+}
+
+export interface ProactiveAlert {
+  id: string;
+  userId: string;
+  type: "NEGATIVE_BALANCE" | "BILL_DUE";
+  priority: "CRITICAL" | "WARNING" | "INFO";
+  message: string;
+  data?: any; // Extra context (e.g., date of negative balance)
+  isDismissed: boolean;
+  createdAt: string;
+}
+
 export interface Session {
   id: string;
   userId: string;
@@ -353,6 +491,13 @@ export interface CreateRecurringTransactionDto {
   startDate: string;
   endDate?: string;
   autoCreate?: boolean;
+}
+
+export interface CreateReleaseNoteDto {
+  version: string;
+  title: string;
+  content: string;
+  isActive?: boolean;
 }
 
 export interface CorrectCategoryDto {
@@ -531,10 +676,114 @@ export interface ImportantDate {
 }
 
 export interface DashboardInsight {
-  type: "success" | "warning" | "info" | "danger";
+  type: "positive" | "negative" | "warning" | "info";
   title: string;
   message: string;
   icon: string;
+}
+
+// === REPORTS SPECIFIC ===
+
+export interface ReportKPIs {
+  totalIncome: number;
+  totalExpense: number;
+  balance: number;
+  transactionCount: number;
+  incomeCount: number;
+  expenseCount: number;
+}
+
+export interface ReportAverages {
+  avgDailyIncome: number;
+  avgDailyExpense: number;
+  avgTransactionValue: number;
+}
+
+export interface ReportHighlights {
+  highestIncome: {
+    amount: number;
+    description: string;
+    date: string;
+  };
+  highestExpense: {
+    amount: number;
+    description: string;
+    date: string;
+  };
+}
+
+export interface ReportDashboardResponse {
+  summary: ReportKPIs;
+  averages: ReportAverages;
+  highlights: ReportHighlights;
+  period: {
+    startDate: string;
+    endDate: string;
+    days: number;
+  };
+}
+
+export interface CategoryAnalysisItem {
+  categoryId: string;
+  categoryName: string;
+  categoryColor: string;
+  categoryIcon: string;
+  count: number;
+  totalIncome: number;
+  totalExpense: number;
+  total: number;
+  percentage: number;
+  transactions?: Transaction[];
+}
+
+export interface CategoryAnalysisResponse {
+  categories: CategoryAnalysisItem[];
+  totalCategories: number;
+  grandTotal: number;
+}
+
+export interface MonthlyTrendItem {
+  month: string;
+  income: number;
+  expense: number;
+  balance: number;
+  transactionCount: number;
+}
+
+export interface MonthlyTrendResponse {
+  months: MonthlyTrendItem[];
+  totalMonths: number;
+}
+
+export interface AccountAnalysisItem {
+  accountId: string;
+  accountName: string;
+  accountColor: string;
+  currentBalance: number;
+  totalIncome: number;
+  totalExpense: number;
+  netFlow: number;
+  count: number;
+}
+
+export interface AccountAnalysisResponse {
+  accounts: AccountAnalysisItem[];
+  totalAccounts: number;
+}
+
+export interface TopTransactionsResponse {
+  topExpenses: Transaction[];
+  topIncomes: Transaction[];
+}
+
+export interface FullReportResponse {
+  dashboard: ReportDashboardResponse;
+  categoryAnalysis: CategoryAnalysisResponse;
+  monthlyTrend: MonthlyTrendResponse;
+  accountAnalysis: AccountAnalysisResponse;
+  topTransactions: TopTransactionsResponse;
+  insights: DashboardInsight[];
+  generatedAt: string;
 }
 
 export interface DashboardHomeResponse {

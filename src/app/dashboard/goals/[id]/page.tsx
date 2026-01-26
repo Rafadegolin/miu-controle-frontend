@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { ArrowLeft, Loader2, Plus, Minus, TrendingUp, Upload, Camera } from "lucide-react";
 import { ImageUpload } from "@/components/goals/ImageUpload";
 import { PurchaseLinksManager } from "@/components/goals/PurchaseLinksManager";
+import { GoalForecast } from "@/components/goals/GoalForecast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -205,8 +206,13 @@ export default function GoalDetailsPage() {
                 </div>
                 
                 {/* Empty placeholder for future chart */}
-                <div className={`${styles.glassCard} flex items-center justify-center min-h-[300px]`}>
-                     <p className="text-gray-600 text-sm">Gráfico de evolução em breve...</p>
+                {/* AI Forecast & Chart Placeholder */}
+                <div className="flex flex-col gap-6">
+                    <GoalForecast goalId={id} />
+                    
+                    <div className={`${styles.glassCard} flex items-center justify-center min-h-[150px]`}>
+                         <p className="text-gray-600 text-sm">Gráfico de evolução em breve...</p>
+                    </div>
                 </div>
              </div>
         </div>

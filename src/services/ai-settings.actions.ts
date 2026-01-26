@@ -1,5 +1,12 @@
 import { apiClient } from "./api-client";
-import { AiConfig, UpdateAiConfigDto, AiProvider, AiKeyTestDto } from "@/types/api";
+import { 
+  AiConfig, 
+  UpdateAiConfigDto, 
+  AiProvider, 
+  AiKeyTestDto,
+  AiUsageStatsResponse,
+  AiCategorizationStatsResponse
+} from "@/types/api";
 
 export const aiSettingsActions = {
   async getAiConfig(): Promise<AiConfig> {
@@ -28,6 +35,16 @@ export const aiSettingsActions = {
     }
 
     const response = await apiClient.post<{ valid: boolean; message: string }>("/ai/config/test", actualPayload);
+    return response.data;
+  },
+
+  async getUsageStats(): Promise<AiUsageStatsResponse> {
+    const response = await apiClient.get<AiUsageStatsResponse>("/ai/usage-stats");
+    return response.data;
+  },
+
+  async getCategorizationStats(): Promise<AiCategorizationStatsResponse> {
+    const response = await apiClient.get<AiCategorizationStatsResponse>("/ai/categorization-stats");
     return response.data;
   }
 };

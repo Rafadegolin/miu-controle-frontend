@@ -41,8 +41,15 @@ export const recurringActions = {
   },
 
   async toggleRecurringTransaction(id: string): Promise<RecurringTransaction> {
-    const response = await apiClient.patch<RecurringTransaction>(
-      `/recurring-transactions/${id}/toggle`
+    const response = await apiClient.post<RecurringTransaction>(
+      `/recurring-transactions/${id}/toggle-active`
+    );
+    return response.data;
+  },
+
+  async processRecurringTransaction(id: string): Promise<RecurringTransaction> {
+    const response = await apiClient.post<RecurringTransaction>(
+      `/recurring-transactions/${id}/process-now`
     );
     return response.data;
   },

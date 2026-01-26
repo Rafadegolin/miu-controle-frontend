@@ -1,12 +1,21 @@
 import { apiClient } from "./api-client";
-import type { DashboardHomeResponse } from "@/types/api";
+import type { 
+  DashboardHomeResponse,
+  ReportDashboardResponse,
+  CategoryAnalysisResponse,
+  MonthlyTrendResponse,
+  AccountAnalysisResponse,
+  TopTransactionsResponse,
+  DashboardInsight,
+  FullReportResponse
+} from "@/types/api";
 
 export const reportsActions = {
   async getDashboardReport(filters: {
     startDate: string;
     endDate: string;
-  }): Promise<any> {
-    const response = await apiClient.get("/reports/dashboard", {
+  }): Promise<ReportDashboardResponse> {
+    const response = await apiClient.get<ReportDashboardResponse>("/reports/dashboard", {
       params: filters,
     });
     return response.data;
@@ -15,8 +24,8 @@ export const reportsActions = {
   async getCategoryAnalysis(filters: {
     startDate: string;
     endDate: string;
-  }): Promise<any> {
-    const response = await apiClient.get("/reports/category-analysis", {
+  }): Promise<CategoryAnalysisResponse> {
+    const response = await apiClient.get<CategoryAnalysisResponse>("/reports/category-analysis", {
       params: filters,
     });
     return response.data;
@@ -25,8 +34,8 @@ export const reportsActions = {
   async getMonthlyTrend(filters: {
     startDate: string;
     endDate: string;
-  }): Promise<any> {
-    const response = await apiClient.get("/reports/monthly-trend", {
+  }): Promise<MonthlyTrendResponse> {
+    const response = await apiClient.get<MonthlyTrendResponse>("/reports/monthly-trend", {
       params: filters,
     });
     return response.data;
@@ -35,8 +44,8 @@ export const reportsActions = {
   async getAccountAnalysis(filters: {
     startDate: string;
     endDate: string;
-  }): Promise<any> {
-    const response = await apiClient.get("/reports/account-analysis", {
+  }): Promise<AccountAnalysisResponse> {
+    const response = await apiClient.get<AccountAnalysisResponse>("/reports/account-analysis", {
       params: filters,
     });
     return response.data;
@@ -45,8 +54,8 @@ export const reportsActions = {
   async getTopTransactions(filters: {
     startDate: string;
     endDate: string;
-  }): Promise<any> {
-    const response = await apiClient.get("/reports/top-transactions", {
+  }): Promise<TopTransactionsResponse> {
+    const response = await apiClient.get<TopTransactionsResponse>("/reports/top-transactions", {
       params: filters,
     });
     return response.data;
@@ -55,8 +64,8 @@ export const reportsActions = {
   async getInsights(filters: {
     startDate: string;
     endDate: string;
-  }): Promise<any> {
-    const response = await apiClient.get("/reports/insights", {
+  }): Promise<DashboardInsight[]> {
+    const response = await apiClient.get<DashboardInsight[]>("/reports/insights", {
       params: filters,
     });
     return response.data;
@@ -65,8 +74,8 @@ export const reportsActions = {
   async getFullReport(filters: {
     startDate: string;
     endDate: string;
-  }): Promise<any> {
-    const response = await apiClient.get("/reports/full-report", {
+  }): Promise<FullReportResponse> {
+    const response = await apiClient.get<FullReportResponse>("/reports/full-report", {
       params: filters,
     });
     return response.data;
