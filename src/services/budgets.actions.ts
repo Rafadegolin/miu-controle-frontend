@@ -63,32 +63,64 @@ let mockBudgets: BudgetStatusResponse[] = [
   }
 ];
 
-export async function getBudgetsSummary(month?: string): Promise<BudgetsSummaryResponse> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-        const totalBudgeted = mockBudgets.reduce((acc, curr) => acc + curr.budget.amount, 0);
-        const totalSpent = mockBudgets.reduce((acc, curr) => acc + curr.spent, 0);
-        const overallPercentage = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
-
-        resolve({
-            totalBudgeted,
-            totalSpent,
-            overallPercentage,
-            budgets: [...mockBudgets]
-        });
-    }, 600);
-  });
-}
-
-export async function createBudget(data: CreateBudgetDto): Promise<void> {
+export const budgetsActions = {
+  async getBudgets(month?: string): Promise<BudgetsSummaryResponse> {
     return new Promise((resolve) => {
-        setTimeout(() => {
-            // Mock adding a new budget - in reality we need category info here
-            // For now we just pretend content was added
-            console.log("Budget Created Mock", data);
-            resolve();
-        }, 500);
+      setTimeout(() => {
+          const totalBudgeted = mockBudgets.reduce((acc, curr) => acc + curr.budget.amount, 0);
+          const totalSpent = mockBudgets.reduce((acc, curr) => acc + curr.spent, 0);
+          const overallPercentage = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
+
+          resolve({
+              totalBudgeted,
+              totalSpent,
+              overallPercentage,
+              budgets: [...mockBudgets]
+          });
+      }, 600);
     });
-}
+  },
+
+  async getBudgetsSummary(month?: string): Promise<BudgetsSummaryResponse> {
+      return this.getBudgets(month);
+  },
+
+  async getBudgetStatus(id: string): Promise<BudgetStatusResponse> {
+      return new Promise((resolve, reject) => {
+          setTimeout(() => {
+              const found = mockBudgets.find(b => b.budget.id === id);
+              if (found) resolve(found);
+              else reject(new Error("Budget not found"));
+          }, 400);
+      });
+  },
+
+  async createBudget(data: CreateBudgetDto): Promise<void> {
+      return new Promise((resolve) => {
+          setTimeout(() => {
+              console.log("Budget Created Mock", data);
+              resolve();
+          }, 500);
+      });
+  },
+
+  async updateBudget(id: string, data: Partial<CreateBudgetDto>): Promise<void> {
+      return new Promise((resolve) => {
+          setTimeout(() => {
+              console.log("Budget Updated Mock", id, data);
+              resolve();
+          }, 500);
+      });
+  },
+
+  async deleteBudget(id: string): Promise<void> {
+      return new Promise((resolve) => {
+          setTimeout(() => {
+              console.log("Budget Deleted Mock", id);
+              resolve();
+          }, 500);
+      });
+  }
+};
 
 
