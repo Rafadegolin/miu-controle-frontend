@@ -1,161 +1,202 @@
 "use client";
 
-import { useState } from "react";
-import { useCreateBudget } from "@/hooks/useBudgets";
-import { useCategories } from "@/hooks/useCategories";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/Button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { CategoryType, BudgetPeriod } from "@/types/api";
+import api from "@/services/api";
+import { createBudget } from "@/services/budgets.actions";
+import { Category, BudgetPeriod, CategoryType } from "@/types/api";
+
+const formSchema = z.object({
+  categoryId: z.string().min(1, "Selecione uma categoria"),
+  amount: z.coerce.number().min(1, "Valor deve ser maior que zero"),
+  period: z.nativeEnum(BudgetPeriod),
+  alertPercentage: z.coerce.number().min(1).max(100),
+});
 
 interface CreateBudgetModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
 }
 
-export function CreateBudgetModal({ open, onOpenChange }: CreateBudgetModalProps) {
-  const [categoryId, setCategoryId] = useState("");
-  const [amount, setAmount] = useState("");
-  const [period, setPeriod] = useState<BudgetPeriod>(BudgetPeriod.MONTHLY);
-  const [alertPercentage, setAlertPercentage] = useState("80");
-  
-  const { categories } = useCategories(CategoryType.EXPENSE);
-  const { mutate: createBudget, isPending } = useCreateBudget();
+export function CreateBudgetModal({ isOpen, onClose, onSuccess }: CreateBudgetModalProps) {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!categoryId || !amount) {
-      toast.error("Preencha todos os campos obrigatórios.");
-      return;
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema) as any,
+    defaultValues: {
+      categoryId: "",
+      amount: 0,
+      period: BudgetPeriod.MONTHLY,
+      alertPercentage: 80,
+    },
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      loadData();
     }
+  }, [isOpen]);
 
-    createBudget(
-      {
-        categoryId,
-        amount: parseFloat(amount),
-        period,
-        startDate: new Date().toISOString(), // Starts now
-        alertPercentage: parseInt(alertPercentage),
-      },
-      {
-        onSuccess: () => {
-          toast.success("Orçamento criado!");
-          onOpenChange(false);
-          resetForm();
-        },
-        onError: () => toast.error("Erro ao criar orçamento."),
-      }
-    );
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const categoriesData = await api.getCategories();
+      // Filter only expense categories
+      setCategories(categoriesData.filter((c: Category) => c.type === CategoryType.EXPENSE));
+    } catch (error) {
+      console.error("Failed to load categories", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const resetForm = () => {
-    setCategoryId("");
-    setAmount("");
-    setPeriod(BudgetPeriod.MONTHLY);
-    setAlertPercentage("80");
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true);
+    try {
+      await createBudget({
+          ...values,
+          startDate: new Date().toISOString()
+      });
+      form.reset();
+      onSuccess();
+      onClose();
+    } catch (error) {
+      console.error("Failed to create budget", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-[#0f172a] text-white border-[#1e293b]">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px] bg-[#0b1215] border border-white/10 text-white">
         <DialogHeader>
-          <DialogTitle className="text-[#00404f] dark:text-white">Novo Orçamento</DialogTitle>
-          <DialogDescription className="text-gray-400">
-            Defina limites de gastos para suas categorias.
-          </DialogDescription>
+          <DialogTitle>Novo Orçamento</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label>Categoria</Label>
-            <Select value={categoryId} onValueChange={setCategoryId} required>
-              <SelectTrigger className="bg-[#1e293b] border-[#334155] text-white">
-                <SelectValue placeholder="Selecione uma categoria" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#1e293b] border-[#334155] text-white">
-                {categories?.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    {cat.icon} {cat.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        {isLoading ? (
+           <div className="flex justify-center p-4">
+             <Loader2 className="animate-spin text-[#32d6a5]" />
+           </div>
+        ) : (
+            <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                
+                <FormField
+                control={form.control}
+                name="categoryId"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Categoria</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                        <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                            <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-[#0b1215] border-white/10 text-white">
+                        {categories.map((category) => (
+                            <SelectItem key={category.id} value={category.id}>
+                                {category.name}
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
 
-          <div className="space-y-2">
-            <Label>Limite de Gasto (R$)</Label>
-            <Input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="1000.00"
-              className="bg-[#1e293b] border-[#334155] text-white placeholder:text-gray-500"
-              required
-              min="0.01"
-              step="0.01"
-            />
-          </div>
+                <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Limite de Gasto</FormLabel>
+                    <FormControl>
+                        <Input type="number" placeholder="0,00" {...field} className="bg-white/5 border-white/10 text-white" />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Período</Label>
-              <Select 
-                value={period} 
-                onValueChange={(val) => setPeriod(val as BudgetPeriod)}
-              >
-                <SelectTrigger className="bg-[#1e293b] border-[#334155] text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-[#1e293b] border-[#334155] text-white">
-                  <SelectItem value={BudgetPeriod.WEEKLY}>Semanal</SelectItem>
-                  <SelectItem value={BudgetPeriod.MONTHLY}>Mensal</SelectItem>
-                  <SelectItem value={BudgetPeriod.YEARLY}>Anual</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Alerta em (%)</Label>
-              <Input
-                type="number"
-                value={alertPercentage}
-                onChange={(e) => setAlertPercentage(e.target.value)}
-                min="1"
-                max="100"
-                className="bg-[#1e293b] border-[#334155] text-white"
-              />
-            </div>
-          </div>
+                <FormField
+                control={form.control}
+                name="period"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Período</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                        <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                            <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-[#0b1215] border-white/10 text-white">
+                            <SelectItem value={BudgetPeriod.MONTHLY}>Mensal</SelectItem>
+                            <SelectItem value={BudgetPeriod.WEEKLY}>Semanal</SelectItem>
+                            <SelectItem value={BudgetPeriod.YEARLY}>Anual</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
 
-          <div className="flex justify-end gap-3 mt-6">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-              className="text-gray-400 hover:text-white"
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={isPending}
-            >
-              {isPending ? <Loader2 className="animate-spin" /> : "Salvar"}
-            </Button>
-          </div>
-        </form>
+                <FormField
+                control={form.control}
+                name="alertPercentage"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Alerta em (%)</FormLabel>
+                    <FormControl>
+                        <Input type="number" {...field} className="bg-white/5 border-white/10 text-white" />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+
+                <DialogFooter>
+                    <Button type="button" variant="ghost" onClick={onClose} className="text-gray-400">Cancelar</Button>
+                    <Button type="submit" disabled={isSubmitting} className="bg-[#32d6a5] text-black hover:bg-[#2ac294]">
+                        {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : "Criar Orçamento"}
+                    </Button>
+                </DialogFooter>
+            </form>
+            </Form>
+        )}
       </DialogContent>
     </Dialog>
   );

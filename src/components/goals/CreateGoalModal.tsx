@@ -1,10 +1,8 @@
-"use client";
-
-import { useEffect, useState } from "react"; // Added useEffect/useState
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useCreateGoal } from "@/hooks/useGoals";
+import { useCreateGoal, useGoals } from "@/hooks/useGoals";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +19,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/Button";
 import { Calendar } from "@/components/ui/calendar";
@@ -41,6 +46,8 @@ const formSchema = z.object({
   targetDate: z.date().optional(),
   icon: z.string().min(1, "Ícone é obrigatório"),
   color: z.string().min(1, "Cor é obrigatória"),
+  parentId: z.string().optional(),
+  distributionStrategy: z.enum(["PROPORTIONAL", "SEQUENTIAL"]).optional(),
 });
 
 interface CreateGoalModalProps {
@@ -50,6 +57,7 @@ interface CreateGoalModalProps {
 
 export function CreateGoalModal({ open, onOpenChange }: CreateGoalModalProps) {
   const { mutate: createGoal, isPending } = useCreateGoal();
+  const { data: goals } = useGoals(); // Fetch existing goals for parent selection
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema) as any,
@@ -59,8 +67,12 @@ export function CreateGoalModal({ open, onOpenChange }: CreateGoalModalProps) {
       targetDate: undefined,
       icon: "🎯",
       color: "#32d6a5",
+      parentId: "none",
+      distributionStrategy: undefined,
     },
   });
+
+  const parentId = form.watch("parentId");
 
   // Reset form when modal opens
   useEffect(() => {
@@ -71,11 +83,27 @@ export function CreateGoalModal({ open, onOpenChange }: CreateGoalModalProps) {
         targetDate: undefined,
         icon: "🎯",
         color: "#32d6a5",
+        parentId: "none",
+        distributionStrategy: undefined,
       });
     }
   }, [open, form]);
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
+    const parentId = values.parentId === "none" ? undefined : values.parentId;
+    
+    // Validate strategy if parent is selected (though logic implies it's for the PARENT to have a strategy, 
+    // but here we are setting properties on the NEW goal. 
+    // Actually, usually the PARENT defines how it distributes to children. 
+    // But if this new goal is a CHILD, it doesn't need a strategy.
+    // Wait, the requirement says: "Quando se contribui para uma meta "Pai" que possui filhos, o valor pode ser distribuído automaticamente".
+    // So if I am creating a PARENT goal, I might want to set this.
+    // If I am creating a CHILD goal, I just select the parent.
+    // The requirement "distributionStrategy" field on Goal likely applies when THAT goal is a parent.
+    // So let's allow setting it regardless, confusing UI but flexible.
+    // Better UX: If I select a parent, I am a Child. 
+    // If I DON'T select a parent, I am potentially a Parent (Root).
+    
     createGoal(
       {
         name: values.name,
@@ -83,6 +111,8 @@ export function CreateGoalModal({ open, onOpenChange }: CreateGoalModalProps) {
         targetDate: values.targetDate?.toISOString(),
         icon: values.icon,
         color: values.color,
+        parentId: parentId,
+        distributionStrategy: !parentId ? values.distributionStrategy : undefined, // Only roots/parents need strategy
       },
       {
         onSuccess: () => {
@@ -150,6 +180,58 @@ export function CreateGoalModal({ open, onOpenChange }: CreateGoalModalProps) {
                 </FormItem>
               )}
             />
+
+             {/* Parent Goal Selection */}
+             <FormField
+              control={form.control}
+              name="parentId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-400">Meta Pai (Opcional)</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                        <SelectValue placeholder="Selecione uma meta pai" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="bg-[#0b1215] border-white/10 text-white">
+                      <SelectItem value="none">Nenhuma (Raiz)</SelectItem>
+                      {goals?.filter(g => !g.parentId).map((goal) => (
+                        <SelectItem key={goal.id} value={goal.id}>
+                          {goal.icon} {goal.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage className="text-red-400" />
+                </FormItem>
+              )}
+            />
+
+            {/* Distribution Strategy (Only show if NO parent selected, implying this IS a parent/root) */}
+            {(!parentId || parentId === "none") && (
+                <FormField
+                control={form.control}
+                name="distributionStrategy"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel className="text-gray-400">Estratégia de Distribuição (para Sub-metas)</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                        <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                            <SelectValue placeholder="Como distribuir aportes futuros?" />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-[#0b1215] border-white/10 text-white">
+                        <SelectItem value="PROPORTIONAL">Proporcional (Baseado no alvo)</SelectItem>
+                        <SelectItem value="SEQUENTIAL">Sequencial (Por prioridade)</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <FormMessage className="text-red-400" />
+                    </FormItem>
+                )}
+                />
+            )}
 
             {/* Date - Optional */}
             <FormField

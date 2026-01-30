@@ -5,6 +5,8 @@ import { ScenarioType, SimulationResult, SimulationRequest } from "@/types/scena
 import { ScenarioSelector } from "@/components/simulator/ScenarioSelector";
 import { SimulationForm } from "@/components/simulator/SimulationForm";
 import { SimulationResultDisplay } from "@/components/simulator/SimulationResult";
+import { affordabilityActions } from "@/services/affordability.actions";
+import { AffordabilityResult } from "@/components/simulator/AffordabilityResult";
 import { simulateScenario } from "@/services/scenarios.actions";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,12 +19,12 @@ export default function SimulatorPage() {
 
   // Mock data for dev/demo if backend fails or is not ready
   const mockSimulation = (req: SimulationRequest): SimulationResult => {
-      const isBad = req.amount! > 10000;
+      const isBad = (req.amount || 0) > 10000;
       return {
           isViable: !isBad,
           lowestBalance: isBad ? -2500 : 1200,
           baselineProjection: [5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000, 9500, 10000, 10500],
-          projectedBalance12Months: Array.from({length: 12}, (_, i) => 5000 + (i * 500) - (req.amount!/ (req.installments || 1)) * (i < (req.installments || 1) ? (i+1) : (req.installments || 1))),
+          projectedBalance12Months: Array.from({length: 12}, (_, i) => 5000 + (i * 500) - ((req.amount || 0)/ (req.installments || 1)) * (i < (req.installments || 1) ? (i+1) : (req.installments || 1))),
           recommendations: isBad 
             ? ["Considere aumentar o número de parcelas", "Corte gastos não essenciais", "Adie a compra para o próximo semestre"] 
             : ["Cenário seguro", "Você manterá uma reserva saudável"],
@@ -33,23 +35,28 @@ export default function SimulatorPage() {
     setIsLoading(true);
     setResult(null);
     try {
-      // Trying real API first, falling back to mock for demo stability if user hasn't set up backend yet
-      try {
-          const res = await simulateScenario(data);
-          setResult(res);
-      } catch (e) {
-          console.warn("API failed, using mock for demonstration", e);
-          // Fallback mock
-          setTimeout(() => {
-             setResult(mockSimulation(data));
-          }, 1500);
+      let res: SimulationResult;
+      
+      if (data.type === ScenarioType.AFFORDABILITY) {
+          res = await affordabilityActions.checkAffordability(data);
+      } else {
+           // Existing logic or mock
+           try {
+              res = await simulateScenario(data);
+           } catch (e) {
+               console.warn("API failed, using mock", e);
+               // Simple fallback
+               const mockRes = mockSimulation(data);
+               // Wait a bit to simulate
+               await new Promise(r => setTimeout(r, 1000));
+               res = mockRes;
+           }
       }
+      setResult(res);
     } catch (error) {
       toast.error("Erro ao realizar simulação");
     } finally {
-      // Only set loading false after the "mock" delay if using fallback, or immediately if real api worked
-      if (!result) setTimeout(() => setIsLoading(false), 1500); 
-      else setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -90,7 +97,11 @@ export default function SimulatorPage() {
                     animate={{ opacity: 1, x: 0 }}
                     className="lg:col-span-8"
                 >
-                     <SimulationResultDisplay result={result} />
+                     {selectedScenario === ScenarioType.AFFORDABILITY ? (
+                         <AffordabilityResult result={result} />
+                     ) : (
+                         <SimulationResultDisplay result={result} />
+                     )}
                 </motion.div>
             )}
         </AnimatePresence>

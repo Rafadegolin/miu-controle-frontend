@@ -1,7 +1,7 @@
 "use client";
 
 import { ScenarioType } from "@/types/scenarios";
-import { Car, TrendingDown, Repeat, AlertOctagon } from "lucide-react";
+import { Car, TrendingDown, Repeat, AlertOctagon, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -38,6 +38,13 @@ const scenarios = [
     description: "Gasto Imprevisto Imediato",
     icon: AlertOctagon,
     color: "from-yellow-500 to-amber-500",
+  },
+  {
+    type: ScenarioType.AFFORDABILITY,
+    title: "Viabilidade",
+    description: "Posso comprar agora?",
+    icon: CheckCircle,
+    color: "from-teal-500 to-emerald-500",
   },
 ];
 

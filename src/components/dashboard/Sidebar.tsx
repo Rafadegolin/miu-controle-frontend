@@ -8,6 +8,7 @@ import {
   Wallet,
   PieChart,
   Target,
+  TrendingDown,
   TrendingUp,
   Link as LinkIcon,
   User,
@@ -17,7 +18,9 @@ import {
 
   X,
   HeartPulse,
+  PiggyBank,
   Repeat,
+  MessageSquare,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import styles from "@/components/dashboard/styles/Dashboard.module.css";
@@ -40,6 +43,12 @@ const menuItems = [
     icon: Wallet,
     label: "Transações",
     href: "/dashboard/transactions",
+  },
+  {
+    id: "budgets",
+    icon: PiggyBank,
+    label: "Orçamentos",
+    href: "/dashboard/budgets",
   },
   {
     id: "reports",
@@ -72,6 +81,12 @@ const menuItems = [
     href: "/dashboard/simulator",
   },
   {
+    id: "inflation",
+    icon: TrendingDown,
+    label: "Simulador Inflação",
+    href: "/dashboard/simulator/inflation",
+  },
+  {
     id: "recurring",
     icon: Repeat,
     label: "Assinaturas",
@@ -95,6 +110,12 @@ const menuItems = [
     icon: LinkIcon,
     label: "Conexões & Hub",
     href: "/dashboard/sync",
+  },
+  {
+    id: "feedback",
+    icon: MessageSquare,
+    label: "Feedback & Suporte",
+    href: "/dashboard/feedback",
   },
 ];
 

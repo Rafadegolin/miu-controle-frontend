@@ -10,6 +10,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { Home, Wallet, PieChart, User } from "lucide-react";
 import { LevelWidget } from "@/components/gamification/LevelWidget";
+import { StreakWidget } from "@/components/gamification/StreakWidget";
 import { SocketProvider } from "@/contexts/SocketContext";
 import { GamificationListener } from "@/components/gamification/GamificationListener";
 import { SyncListener } from "@/components/sync/SyncListener";
@@ -69,6 +70,7 @@ export default function DashboardLayout({
               </div>
 
               <div className={styles.headerActions}>
+                <StreakWidget />
                 <LevelWidget />
                 <button className={styles.iconBtn}>
                    <Plus size={20} />

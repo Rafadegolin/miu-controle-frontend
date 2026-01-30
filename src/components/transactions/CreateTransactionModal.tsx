@@ -41,6 +41,8 @@ import { cn } from "@/lib/utils";
 import api from "@/services/api";
 import { Account, Category, TransactionType } from "@/types/api";
 
+import { BrandSelect } from "@/components/brands/BrandSelect"; // Added Import
+
 // Helper to render dynamic Lucide icons
 const DynamicIcon = ({ name, size = 16 }: { name: string; size?: number }) => {
   const Icon = (LucideIcons as any)[name];
@@ -53,6 +55,7 @@ const formSchema = z.object({
   date: z.date(),
   categoryId: z.string().min(1, "Selecione uma categoria"),
   accountId: z.string().min(1, "Selecione uma conta"),
+  brandId: z.string().optional(), // Added field
   type: z.enum([TransactionType.INCOME, TransactionType.EXPENSE]),
   notes: z.string().optional(),
   tags: z.string().optional(), // We'll handle comma separated
@@ -246,6 +249,20 @@ export function CreateTransactionModal({
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="brandId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-400">Marca (Opcional)</FormLabel>
+                    <FormControl>
+                        <BrandSelect value={field.value} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage className="text-red-400" />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}

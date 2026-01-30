@@ -5,10 +5,22 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("pt-BR", {
+export function formatCurrency(value: number, currency = "BRL", locale = "pt-BR"): string {
+  // Fallback map for common currencies if locale isn't provided
+  const localeMap: Record<string, string> = {
+    USD: "en-US",
+    EUR: "de-DE",
+    JPY: "ja-JP",
+    GBP: "en-GB",
+  };
+
+  const finalLocale = locale === "pt-BR" && currency !== "BRL" 
+      ? (localeMap[currency] || "en-US") 
+      : locale;
+
+  return new Intl.NumberFormat(finalLocale, {
     style: "currency",
-    currency: "BRL",
+    currency: currency,
   }).format(value);
 }
 

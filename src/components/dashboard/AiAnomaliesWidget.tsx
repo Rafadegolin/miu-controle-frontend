@@ -18,7 +18,7 @@ export function AiAnomaliesWidget() {
     try {
       const data = await aiAnalyticsActions.getAnomalies();
       // Filter only non-dismissed
-      setAnomalies(data.filter(a => !a.isDismissed));
+      setAnomalies(data.filter(a => !a.isDismissed && a.transaction));
     } catch (err) {
       console.error("Failed to load anomalies", err);
     }

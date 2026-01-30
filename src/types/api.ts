@@ -98,15 +98,39 @@ export interface Anomaly {
   detectedAt: string;
 }
 
-export interface FinancialHealthResponse {
+export enum HealthLevel {
+  EXCELLENT = "EXCELLENT",
+  GOOD = "GOOD",
+  HEALTHY = "HEALTHY",
+  ATTENTION = "ATTENTION",
+  CRITICAL = "CRITICAL",
+}
+
+export interface HealthPilar {
   score: number;
-  level: "DIAMANTE" | "PLATINA" | "OURO" | "PRATA" | "BRONZE";
-  breakdown: {
-    savingsRate: number;
-    consistency: number;
-    budgetHealth: number;
+  maxScore: number;
+  label: string;
+  color: string;
+  icon: string;
+  percentage: number;
+}
+
+export interface FinancialHealthResponse {
+  score: number; // 0-1000
+  level: HealthLevel;
+  pilars: {
+    consistency: HealthPilar;
+    budget: HealthPilar;
+    goals: HealthPilar;
+    emergencyFund: HealthPilar;
+    diversification: HealthPilar;
   };
   history: { date: string; score: number }[];
+  insight?: {
+    message: string;
+    generatedAt: string;
+    actionItem?: string;
+  };
 }
 
 export interface GoalForecastResponse {
@@ -165,6 +189,14 @@ export enum RecommendationType {
 
 // === ENTIDADES ===
 
+export interface Currency {
+  code: string; // ISO 4217 (BRL, USD)
+  name: string;
+  symbol: string;
+  isActive: boolean;
+  locale?: string; // Optional locale for formatting (pt-BR, en-US)
+}
+
 export interface User {
   id: string;
   email: string;
@@ -195,6 +227,17 @@ export interface Account {
   updatedAt: string;
 }
 
+export interface Brand {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl?: string; // URL for the logo image
+  website?: string;
+  matchPatterns: string[]; // Patterns for auto-detection
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Category {
   id: string;
   userId: string;
@@ -215,6 +258,7 @@ export interface Transaction {
   userId: string;
   accountId: string;
   categoryId: string;
+  brandId?: string; // New field
   type: TransactionType;
   amount: number;
   description: string;
@@ -238,6 +282,7 @@ export interface Transaction {
   updatedAt: string;
   account?: Account;
   category?: Category;
+  brand?: Brand; // New relation
 }
 
 export interface PurchaseLink {
@@ -263,6 +308,12 @@ export interface Goal {
   icon?: string;
   priority: number;
   status: GoalStatus;
+
+  // Hierarquia
+  parentId?: string;
+  hierarchyLevel?: number; // 0 = Root
+  distributionStrategy?: "PROPORTIONAL" | "SEQUENTIAL";
+  children?: Goal[];
 
   // Campos de imagem
   imageUrl?: string;
@@ -453,6 +504,8 @@ export interface CreateGoalDto {
   color?: string;
   icon?: string;
   priority?: number;
+  parentId?: string;
+  distributionStrategy?: "PROPORTIONAL" | "SEQUENTIAL";
 }
 
 export interface AddPurchaseLinkDto {
@@ -565,6 +618,27 @@ export interface AccountSummaryResponse {
   accounts: AccountBalanceSummary[];
 }
 
+export interface EmergencyFund {
+  id: string;
+  userId: string;
+  currentAmount: number;
+  targetAmount: number;
+  monthsCovered: number;
+  status: "SECURE" | "WARNING" | "CRITICAL";
+  monthlyExpensesAverage: number;
+  isSetup: boolean;
+  linkedGoalId?: string;
+  lastUpdated: string;
+}
+
+export interface EmergencyFundWithdrawal {
+  id: string;
+  amount: number;
+  reason: string;
+  date: string;
+  userId: string;
+}
+
 export interface TransactionSummaryResponse {
   totalIncome: number;
   totalExpense: number;
@@ -587,6 +661,14 @@ export interface BudgetStatusResponse {
   remaining: number;
   percentage: number;
   isOverBudget: boolean;
+  status: "OK" | "WARNING" | "EXCEEDED";
+}
+
+export interface BudgetsSummaryResponse {
+  totalBudgeted: number;
+  totalSpent: number;
+  overallPercentage: number;
+  budgets: BudgetStatusResponse[];
 }
 
 export interface GoalSummaryResponse {
@@ -605,6 +687,67 @@ export interface PurchaseLinksSummaryResponse {
   totalBRL: number;
   byCurrency: Record<string, number>;
   links: PurchaseLink[];
+}
+
+export interface ExchangeRate {
+  id: string;
+  fromCurrency: string;
+  toCurrency: string;
+  rate: number;
+  date: string;
+  source: "API" | "MANUAL";
+}
+
+export interface ConversionResponse {
+  rate: number;
+  convertedAmount: number;
+  date: string;
+  from: string;
+  to: string;
+}
+
+export interface ConsolidatedBalanceResponse {
+  totalBalance: number;
+  preferredCurrency: string;
+  accounts: Array<{
+    accountId: string;
+    originalBalance: number;
+    originalCurrency: string;
+    convertedBalance: number;
+  }>;
+}
+
+export type FeedbackType = "BUG" | "SUGGESTION" | "OTHER";
+export type FeedbackStatus = "PENDING" | "IN_PROGRESS" | "RESOLVED" | "REJECTED";
+
+export interface Feedback {
+  id: string;
+  userId: string;
+  type: FeedbackType;
+  title: string;
+  description: string;
+  status: FeedbackStatus;
+  adminResponse?: string;
+  attachments?: string[];
+  createdAt: string;
+  updatedAt: string;
+  user?: { // For admin view
+      id: string;
+      fullName: string;
+      avatarUrl?: string;
+  }
+}
+
+export interface CreateFeedbackDto {
+  type: FeedbackType;
+  title: string;
+  description: string;
+  attachments?: string[];
+}
+
+export interface UpdateFeedbackStatusDto {
+  status: FeedbackStatus;
+  adminResponse?: string;
 }
 
 export interface ApiError {
@@ -774,6 +917,50 @@ export interface AccountAnalysisResponse {
 export interface TopTransactionsResponse {
   topExpenses: Transaction[];
   topIncomes: Transaction[];
+}
+
+// === ANALYSIS & INSIGHTS ===
+
+export type MetricType = "INCOME" | "EXPENSE" | "BALANCE" | "SAVINGS_RATE";
+
+export interface AnalysisInsight {
+  id: string;
+  type: "POSITIVE" | "NEGATIVE" | "NEUTRAL" | "WARNING";
+  relatedMetric: MetricType;
+  message: string;
+  explanation: string; // Detailed AI reasoning
+  actionItem?: string; // Suggestion (e.g., "Reduce dining out")
+}
+
+export interface AnalysisAnomaly {
+  categoryId: string;
+  categoryName: string;
+  amount: number;
+  averageAmount: number;
+  deviationPercentage: number; // e.g., 50 (50% above avg)
+  severity: "LOW" | "MEDIUM" | "HIGH";
+}
+
+export interface MonthlyReport {
+  month: string; // YYYY-MM
+  stats: {
+    income: number;
+    expense: number;
+    balance: number;
+    savingsRate: number; // 0-100
+  };
+  comparison: {
+    incomeChange: number; // % vs previous month
+    expenseChange: number;
+    savingsRateChange: number;
+  };
+  insights: AnalysisInsight[];
+  anomalies: AnalysisAnomaly[];
+  topCategories: {
+    name: string;
+    amount: number;
+    percentage: number;
+  }[];
 }
 
 export interface FullReportResponse {

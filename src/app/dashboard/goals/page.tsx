@@ -18,9 +18,18 @@ import { CreateGoalModal } from "@/components/goals/CreateGoalModal";
 import styles from "@/components/dashboard/styles/Dashboard.module.css";
 
 export default function GoalsPage() {
-  const { data: goals, isLoading } = useGoals();
+  const { data: allGoals, isLoading } = useGoals();
   const router = useRouter();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Filter only ROOT goals for display
+  const goals = allGoals?.filter(g => !g.parentId && (g.status === 'ACTIVE' || !g.status));
+  const childrenMap = allGoals?.reduce((acc, goal) => {
+      if(goal.parentId) {
+          acc[goal.parentId] = (acc[goal.parentId] || 0) + 1;
+      }
+      return acc;
+  }, {} as Record<string, number>);
 
   if (isLoading) {
     return (
@@ -55,6 +64,8 @@ export default function GoalsPage() {
                 Math.round((goal.currentAmount / goal.targetAmount) * 100)
              );
              
+             const childCount = childrenMap?.[goal.id] || 0;
+
              return (
               <div 
                 key={goal.id}
@@ -63,12 +74,19 @@ export default function GoalsPage() {
               >
                   <div className="flex justify-between items-start mb-6">
                       <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-[#131b20] flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                          <div className="w-12 h-12 rounded-xl bg-[#131b20] flex items-center justify-center text-2xl group-hover:scale-110 transition-transform relative">
                               {goal.icon || "🎯"}
+                              {childCount > 0 && (
+                                  <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#32d6a5] text-[10px] font-bold text-black border border-[#0b1215]">
+                                      {childCount}
+                                  </div>
+                              )}
                           </div>
                           <div>
                               <h3 className="text-lg font-bold text-[#32d6a5] group-hover:text-[#4affcf] transition-colors">{goal.name}</h3>
-                              <p className="text-xs text-gray-500">Meta: {goal.targetDate ? new Date(goal.targetDate).toLocaleDateString() : 'Sem data'}</p>
+                              <p className="text-xs text-gray-500">
+                                  {childCount > 0 ? `${childCount} sub-metas` : (goal.targetDate ? new Date(goal.targetDate).toLocaleDateString() : 'Sem data')}
+                              </p>
                           </div>
                       </div>
                       <div className="opacity-50 group-hover:opacity-100 transition-opacity">

@@ -8,6 +8,7 @@ import { ArrowLeft, Loader2, Plus, Minus, TrendingUp, Upload, Camera } from "luc
 import { ImageUpload } from "@/components/goals/ImageUpload";
 import { PurchaseLinksManager } from "@/components/goals/PurchaseLinksManager";
 import { GoalForecast } from "@/components/goals/GoalForecast";
+import { PlanningWidget } from "@/components/goals/planning/PlanningWidget";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -170,6 +171,54 @@ export default function GoalDetailsPage() {
                  </div>
 
             </div>
+
+            <PlanningWidget goalId={id} />
+
+            {/* SUB-GOALS LIST */}
+            {goal.children && goal.children.length > 0 && (
+                <div className="space-y-4">
+                     <h3 className="text-xl font-bold text-white flex items-center justify-between">
+                        <span>Sub-metas</span>
+                        {goal.distributionStrategy && (
+                            <span className="text-xs font-normal px-2 py-1 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                Distribuição: {goal.distributionStrategy === "PROPORTIONAL" ? "Proporcional" : "Sequencial"}
+                            </span>
+                        )}
+                     </h3>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         {goal.children.map(child => {
+                             const childPercent = Math.min(100, Math.round((child.currentAmount / child.targetAmount) * 100));
+                             return (
+                                 <div 
+                                    key={child.id}
+                                    onClick={() => router.push(`/dashboard/goals/${child.id}`)}
+                                    className="bg-[#0b1215] border border-white/5 p-4 rounded-xl hover:border-[#32d6a5]/30 cursor-pointer transition-colors group"
+                                  >
+                                     <div className="flex justify-between items-start mb-3">
+                                         <div className="flex items-center gap-3">
+                                             <div className="p-2 rounded-lg bg-[#131b20] text-lg">
+                                                 {child.icon || "🎯"}
+                                             </div>
+                                             <div>
+                                                 <h4 className="font-bold text-gray-200 group-hover:text-[#32d6a5] transition-colors">{child.name}</h4>
+                                                 <p className="text-xs text-gray-500">
+                                                     {child.currentAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} / {child.targetAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                                 </p>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div className="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
+                                         <div 
+                                              className="h-full bg-[#32d6a5] rounded-full" 
+                                              style={{ width: `${childPercent}%` }}
+                                         />
+                                     </div>
+                                 </div>
+                             )
+                         })}
+                     </div>
+                </div>
+            )}
 
             {/* VISUALIZATION / IMAGE UPLOAD */}
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

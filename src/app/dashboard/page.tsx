@@ -68,6 +68,7 @@ const recentTransactions = [
 ];
 
 import { ProactiveAlertsWidget } from "@/components/dashboard/ProactiveAlertsWidget";
+import { CurrencyConverterWidget } from "@/components/dashboard/CurrencyConverterWidget";
 
 export default function DashboardPage() {
   const { data, isLoading, refetch } = useDashboard();
@@ -335,6 +336,10 @@ export default function DashboardPage() {
       </div>
 
       {/* TOP CATEGORIES (Mock) */}
+      <div className={`${styles.glassCard} ${styles.colSpan4}`}>
+         <CurrencyConverterWidget />
+      </div>
+
       <div className={`${styles.glassCard} ${styles.colSpan6}`}>
         <div className={styles.cardHeader}>
           <div className={styles.cardTitle}>Top Categorias</div>

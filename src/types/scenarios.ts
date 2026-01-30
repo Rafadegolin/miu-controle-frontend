@@ -3,6 +3,7 @@ export enum ScenarioType {
   INCOME_LOSS = "INCOME_LOSS",
   NEW_RECURRING = "NEW_RECURRING",
   EMERGENCY = "EMERGENCY",
+  AFFORDABILITY = "AFFORDABILITY",
 }
 
 export interface SimulationRequest {
@@ -11,6 +12,9 @@ export interface SimulationRequest {
   installments?: number;
   description?: string;
   startDate?: string; // ISO Date
+  
+  // Affordability
+  categoryId?: string;
 }
 
 export interface SimulationResult {
@@ -18,7 +22,20 @@ export interface SimulationResult {
   lowestBalance: number;
   projectedBalance12Months: number[];
   recommendations: string[];
-  baselineProjection: number[]; // Adding baseline for comparison in chart
+  baselineProjection: number[]; 
+
+  // Affordability specific
+  score?: number; // 0-100
+  status?: "CAN_AFFORD" | "CAUTION" | "NOT_RECOMMENDED";
+  badgeColor?: string;
+  dimensions?: {
+      balanceScore: number;
+      budgetScore: number;
+      reserveScore: number;
+      impactScore: number;
+      historyScore: number;
+      timingScore: number;
+  };
 }
 
 export type ScenarioIcon = "car" | "briefcase" | "refresh" | "alert";
