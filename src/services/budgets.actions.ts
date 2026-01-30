@@ -8,7 +8,7 @@ let mockBudgets: BudgetStatusResponse[] = [
     budget: {
       id: "b1",
       userId: "u1",
-      categoryId: "cat_food", // Assuming mock ID mapping for now (need real categories later)
+      categoryId: "cat_food", 
       amount: 1500,
       period: BudgetPeriod.MONTHLY,
       startDate: new Date().toISOString(),
@@ -63,64 +63,69 @@ let mockBudgets: BudgetStatusResponse[] = [
   }
 ];
 
-export const budgetsActions = {
-  async getBudgets(month?: string): Promise<BudgetsSummaryResponse> {
-    return new Promise((resolve) => {
+export async function getBudgets(month?: string): Promise<BudgetsSummaryResponse> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+        const totalBudgeted = mockBudgets.reduce((acc, curr) => acc + curr.budget.amount, 0);
+        const totalSpent = mockBudgets.reduce((acc, curr) => acc + curr.spent, 0);
+        const overallPercentage = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
+
+        resolve({
+            totalBudgeted,
+            totalSpent,
+            overallPercentage,
+            budgets: [...mockBudgets]
+        });
+    }, 600);
+  });
+}
+
+export async function getBudgetsSummary(month?: string): Promise<BudgetsSummaryResponse> {
+    return getBudgets(month);
+}
+
+export async function getBudgetStatus(id: string): Promise<BudgetStatusResponse> {
+  return new Promise((resolve, reject) => {
       setTimeout(() => {
-          const totalBudgeted = mockBudgets.reduce((acc, curr) => acc + curr.budget.amount, 0);
-          const totalSpent = mockBudgets.reduce((acc, curr) => acc + curr.spent, 0);
-          const overallPercentage = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
+          const found = mockBudgets.find(b => b.budget.id === id);
+          if (found) resolve(found);
+          else reject(new Error("Budget not found"));
+      }, 400);
+  });
+}
 
-          resolve({
-              totalBudgeted,
-              totalSpent,
-              overallPercentage,
-              budgets: [...mockBudgets]
-          });
-      }, 600);
-    });
-  },
+export async function createBudget(data: CreateBudgetDto): Promise<void> {
+  return new Promise((resolve) => {
+      setTimeout(() => {
+          console.log("Budget Created Mock", data);
+          resolve();
+      }, 500);
+  });
+}
 
-  async getBudgetsSummary(month?: string): Promise<BudgetsSummaryResponse> {
-      return this.getBudgets(month);
-  },
+export async function updateBudget(id: string, data: Partial<CreateBudgetDto>): Promise<void> {
+  return new Promise((resolve) => {
+      setTimeout(() => {
+          console.log("Budget Updated Mock", id, data);
+          resolve();
+      }, 500);
+  });
+}
 
-  async getBudgetStatus(id: string): Promise<BudgetStatusResponse> {
-      return new Promise((resolve, reject) => {
-          setTimeout(() => {
-              const found = mockBudgets.find(b => b.budget.id === id);
-              if (found) resolve(found);
-              else reject(new Error("Budget not found"));
-          }, 400);
-      });
-  },
+export async function deleteBudget(id: string): Promise<void> {
+  return new Promise((resolve) => {
+      setTimeout(() => {
+          console.log("Budget Deleted Mock", id);
+          resolve();
+      }, 500);
+  });
+}
 
-  async createBudget(data: CreateBudgetDto): Promise<void> {
-      return new Promise((resolve) => {
-          setTimeout(() => {
-              console.log("Budget Created Mock", data);
-              resolve();
-          }, 500);
-      });
-  },
-
-  async updateBudget(id: string, data: Partial<CreateBudgetDto>): Promise<void> {
-      return new Promise((resolve) => {
-          setTimeout(() => {
-              console.log("Budget Updated Mock", id, data);
-              resolve();
-          }, 500);
-      });
-  },
-
-  async deleteBudget(id: string): Promise<void> {
-      return new Promise((resolve) => {
-          setTimeout(() => {
-              console.log("Budget Deleted Mock", id);
-              resolve();
-          }, 500);
-      });
-  }
+export const budgetsActions = {
+  getBudgets,
+  getBudgetsSummary,
+  getBudgetStatus,
+  createBudget,
+  updateBudget,
+  deleteBudget
 };
-
-

@@ -3,7 +3,8 @@ import {
   ForecastResponse, 
   Anomaly, 
   FinancialHealthResponse, 
-  GoalForecastResponse 
+  GoalForecastResponse,
+  HealthLevel 
 } from "@/types/api";
 
 // MOCK DATA FOR FALLBACK
@@ -30,19 +31,21 @@ const MOCK_FORECAST: ForecastResponse = {
 };
 
 const MOCK_HEALTH: FinancialHealthResponse = {
-  score: 82,
-  level: "DIAMANTE",
-  breakdown: {
-    savingsRate: 25.5,
-    consistency: 85,
-    budgetHealth: 90
+  score: 820,
+  level: HealthLevel.EXCELLENT,
+  pilars: {
+    consistency: { score: 85, maxScore: 100, label: "Consistência", color: "#32d6a5", icon: "CheckCircle", percentage: 85 },
+    budget: { score: 90, maxScore: 100, label: "Orçamento", color: "#32d6a5", icon: "PieChart", percentage: 90 },
+    goals: { score: 70, maxScore: 100, label: "Metas", color: "#F59E0B", icon: "Target", percentage: 70 },
+    emergencyFund: { score: 100, maxScore: 100, label: "Reserva", color: "#32d6a5", icon: "Shield", percentage: 100 },
+    diversification: { score: 60, maxScore: 100, label: "Diversificação", color: "#F59E0B", icon: "TrendingUp", percentage: 60 }
   },
   history: [
-    { date: "2023-08-01", score: 65 },
-    { date: "2023-09-01", score: 70 },
-    { date: "2023-10-01", score: 72 },
-    { date: "2023-11-01", score: 78 },
-    { date: "2023-12-01", score: 82 }
+    { date: "2023-08-01", score: 650 },
+    { date: "2023-09-01", score: 700 },
+    { date: "2023-10-01", score: 720 },
+    { date: "2023-11-01", score: 780 },
+    { date: "2023-12-01", score: 820 }
   ]
 };
 
