@@ -23,7 +23,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/Button";
 import { Loader2, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
-import { contributeToFund, withdrawFromFund } from "@/services/emergency-fund.actions";
+import {
+  contributeToFund,
+  withdrawFromFund,
+} from "@/services/emergency-fund.actions";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -39,7 +42,12 @@ interface FundOperationsModalProps {
   mode: "DEPOSIT" | "WITHDRAW";
 }
 
-export function FundOperationsModal({ isOpen, onClose, onSuccess, mode }: FundOperationsModalProps) {
+export function FundOperationsModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  mode,
+}: FundOperationsModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -50,27 +58,31 @@ export function FundOperationsModal({ isOpen, onClose, onSuccess, mode }: FundOp
     },
   });
 
-  // Reset form when modal opens
+  const { reset } = form;
+
+  // Reset form when modal opens — depend only on isOpen and the stable reset ref
   useEffect(() => {
     if (isOpen) {
-        form.reset({ amount: 0, reason: "" });
+      reset({ amount: 0, reason: "" });
     }
-  }, [isOpen, form]);
+  }, [isOpen, reset]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
       if (mode === "DEPOSIT") {
-          await contributeToFund(values.amount);
-          toast.success("Aporte realizado com sucesso!");
+        await contributeToFund(values.amount);
+        toast.success("Aporte realizado com sucesso!");
       } else {
-          if (!values.reason) {
-              form.setError("reason", { message: "Motivo é obrigatório para saques." });
-              setIsSubmitting(false);
-              return;
-          }
-          await withdrawFromFund(values.amount, values.reason);
-          toast.success("Saque registrado.");
+        if (!values.reason) {
+          form.setError("reason", {
+            message: "Motivo é obrigatório para saques.",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+        await withdrawFromFund(values.amount, values.reason);
+        toast.success("Saque registrado.");
       }
       onSuccess();
       onClose();
@@ -88,27 +100,26 @@ export function FundOperationsModal({ isOpen, onClose, onSuccess, mode }: FundOp
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {mode === "DEPOSIT" ? (
-                <>
-                    <ArrowUpCircle className="text-[#32d6a5]" />
-                    Aportar na Reserva
-                </>
+              <>
+                <ArrowUpCircle className="text-[#32d6a5]" />
+                Aportar na Reserva
+              </>
             ) : (
-                <>
-                    <ArrowDownCircle className="text-red-500" />
-                    Realizar Saque
-                </>
+              <>
+                <ArrowDownCircle className="text-red-500" />
+                Realizar Saque
+              </>
             )}
           </DialogTitle>
           <DialogDescription className="text-gray-400">
-            {mode === "DEPOSIT" 
-                ? "Adicione valor à sua reserva de emergência." 
-                : "Registre um saque da sua reserva. Use com sabedoria!"}
+            {mode === "DEPOSIT"
+              ? "Adicione valor à sua reserva de emergência."
+              : "Registre um saque da sua reserva. Use com sabedoria!"}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            
             <FormField
               control={form.control}
               name="amount"
@@ -116,7 +127,12 @@ export function FundOperationsModal({ isOpen, onClose, onSuccess, mode }: FundOp
                 <FormItem>
                   <FormLabel>Valor (R$)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="0,00" {...field} className="bg-white/5 border-white/10 text-white font-mono text-lg" />
+                    <Input
+                      type="number"
+                      placeholder="0,00"
+                      {...field}
+                      className="bg-white/5 border-white/10 text-white font-mono text-lg"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -124,30 +140,45 @@ export function FundOperationsModal({ isOpen, onClose, onSuccess, mode }: FundOp
             />
 
             {mode === "WITHDRAW" && (
-                 <FormField
-                 control={form.control}
-                 name="reason"
-                 render={({ field }) => (
-                   <FormItem>
-                     <FormLabel>Motivo do Saque</FormLabel>
-                     <FormControl>
-                       <Textarea placeholder="Ex: Conserto do carro, Despesas médicas..." {...field} className="bg-white/5 border-white/10 text-white" />
-                     </FormControl>
-                     <FormMessage />
-                   </FormItem>
-                 )}
-               />
+              <FormField
+                control={form.control}
+                name="reason"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Motivo do Saque</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Ex: Conserto do carro, Despesas médicas..."
+                        {...field}
+                        className="bg-white/5 border-white/10 text-white"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
 
             <DialogFooter className="mt-6">
-                <Button type="button" variant="ghost" onClick={onClose} className="text-gray-400">Cancelar</Button>
-                <Button 
-                    type="submit" 
-                    disabled={isSubmitting} 
-                    className={`${mode === "DEPOSIT" ? "bg-[#32d6a5] hover:bg-[#2ac294]" : "bg-red-500 hover:bg-red-600"} text-black font-semibold`}
-                >
-                    {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : "Confirmar"}
-                </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onClose}
+                className="text-gray-400"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className={`${mode === "DEPOSIT" ? "bg-[#32d6a5] hover:bg-[#2ac294]" : "bg-red-500 hover:bg-red-600"} text-black font-semibold`}
+              >
+                {isSubmitting ? (
+                  <Loader2 className="animate-spin w-4 h-4" />
+                ) : (
+                  "Confirmar"
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

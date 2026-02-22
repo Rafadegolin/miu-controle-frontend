@@ -1,6 +1,5 @@
 "use server";
 
-import { api } from "./api";
 import { FinancialHealthResponse } from "@/types/api";
 
 export async function getHealthScore(): Promise<FinancialHealthResponse> {
@@ -60,7 +59,8 @@ export async function getHealthScore(): Promise<FinancialHealthResponse> {
           message:
             "Sua consistência está excelente, parabéns! O ponto de atenção é sua Reserva de Emergência, que cobre menos de 3 meses dos seus custos fixos.",
           generatedAt: new Date().toISOString(),
-          actionItem: "Tente destinar 10% da sua renda extra para a Reserva este mês.",
+          actionItem:
+            "Tente destinar 10% da sua renda extra para a Reserva este mês.",
         },
       });
     }, 800);
@@ -75,7 +75,7 @@ function generateMockHistory() {
     date.setDate(today.getDate() - i);
     history.push({
       date: date.toISOString().split("T")[0],
-      score: 650 + Math.floor(Math.random() * 100) + (i * 2), // Slight upward trend
+      score: 650 + Math.floor(Math.random() * 100) + i * 2, // Slight upward trend
     });
   }
   return history;
@@ -85,9 +85,7 @@ export async function refreshInsights(): Promise<string> {
   // Mock call to refresh AI
   return new Promise((resolve) => {
     setTimeout(() => {
-        resolve("Corte gastos com 'Lazer' para acelerar sua meta 'Viagem'.");
+      resolve("Corte gastos com 'Lazer' para acelerar sua meta 'Viagem'.");
     }, 2000);
   });
 }
-
-
