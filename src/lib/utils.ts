@@ -33,6 +33,20 @@ export function formatDate(date: string | Date): string {
   }).format(d);
 }
 
+/**
+ * Normaliza o status de orçamento para MAIÚSCULAS. GET /budgets usa
+ * OK/WARNING/EXCEEDED, mas o bloco `budgets` de GET /dashboard/home usa
+ * ok/warning/exceeded — este helper unifica os dois. (docs/handoff/budgets.md)
+ */
+export function normalizeBudgetStatus(
+  status?: string | null,
+): "OK" | "WARNING" | "EXCEEDED" {
+  const s = (status ?? "").toUpperCase();
+  if (s === "EXCEEDED") return "EXCEEDED";
+  if (s === "WARNING") return "WARNING";
+  return "OK";
+}
+
 export function getFullImageUrl(url?: string | null): string | undefined {
   if (!url) return undefined;
   if (url.startsWith("http") || url.startsWith("https") || url.startsWith("blob:")) return url;

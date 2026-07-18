@@ -22,7 +22,9 @@ export interface SimulationResult {
   lowestBalance: number;
   projectedBalance12Months: number[];
   recommendations: string[];
-  baselineProjection: number[]; 
+  baselineProjection: number[];
+  currentBalance?: number;
+  impactedGoals?: string[]; // metas em risco (POST /scenarios/simulate)
 
   // Affordability specific
   score?: number; // 0-100

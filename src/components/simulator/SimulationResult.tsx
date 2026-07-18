@@ -131,6 +131,23 @@ export function SimulationResultDisplay({ result }: SimulationResultProps) {
               </p>
           </div>
       </div>
+
+      {/* Metas impactadas */}
+      {result.impactedGoals && result.impactedGoals.length > 0 && (
+        <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4">
+          <h4 className="text-sm font-bold text-red-400 mb-3 flex items-center gap-2">
+            <TrendingDown size={16} /> Metas em risco
+          </h4>
+          <ul className="space-y-2">
+            {result.impactedGoals.map((goal, i) => (
+              <li key={i} className="text-sm text-gray-300 flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 shrink-0" />
+                {goal}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </motion.div>
   );
 }

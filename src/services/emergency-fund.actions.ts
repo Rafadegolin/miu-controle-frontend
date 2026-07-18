@@ -1,89 +1,80 @@
-"use server";
-
+import { AxiosError } from "axios";
+import { apiClient } from "./api-client";
 import { EmergencyFund, EmergencyFundWithdrawal } from "@/types/api";
 
-const mockFund: EmergencyFund = {
-  id: "fund_01",
-  userId: "user_01",
-  currentAmount: 15400,
-  targetAmount: 30000, // 5k expenses * 6 months
-  monthsCovered: 3.1,
-  status: "SECURE", // > 3 months
-  monthlyExpensesAverage: 5000,
-  isSetup: true,
-  lastUpdated: new Date().toISOString()
-};
+interface EmergencyFundStatus {
+  currentAmount: number;
+  targetAmount: number;
+  monthsCovered: number;
+  status: "CRITICAL" | "WARNING" | "SECURE";
+  percentage: number;
+}
 
-const mockWithdrawals: EmergencyFundWithdrawal[] = [
-    {
-        id: "w1",
-        amount: 2000,
-        reason: "Conserto do Carro",
-        date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(), // 5 days ago
-        userId: "user_01"
-    }
-];
+interface EmergencyFundWithdrawalApi {
+  id: string;
+  fundId: string;
+  amount: number;
+  reason: string;
+  approved: boolean;
+  createdAt: string;
+}
 
+// GET /emergency-fund/status → adapta para o tipo EmergencyFund consumido pela UI.
+// (o /status devolve zeros — não 404 — quando o fundo ainda não existe)
 export async function getEmergencyFundStatus(): Promise<EmergencyFund> {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({ ...mockFund });
-        }, 800);
-    });
+  const res = await apiClient.get<EmergencyFundStatus>(
+    "/emergency-fund/status",
+  );
+  const s = res.data;
+  return {
+    id: "",
+    userId: "",
+    currentAmount: s.currentAmount,
+    targetAmount: s.targetAmount,
+    monthsCovered: s.monthsCovered,
+    status: s.status,
+    monthlyExpensesAverage:
+      s.monthsCovered > 0 ? s.currentAmount / s.monthsCovered : 0,
+    isSetup: s.targetAmount > 0,
+    lastUpdated: new Date().toISOString(),
+  };
 }
 
 export async function setupEmergencyFund(): Promise<EmergencyFund> {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            mockFund.isSetup = true;
-            resolve({ ...mockFund });
-        }, 1000);
-    });
+  await apiClient.post("/emergency-fund/setup");
+  return getEmergencyFundStatus();
 }
 
 export async function contributeToFund(amount: number): Promise<void> {
-     return new Promise((resolve) => {
-        setTimeout(() => {
-            mockFund.currentAmount += amount;
-            mockFund.monthsCovered = mockFund.currentAmount / mockFund.monthlyExpensesAverage;
-            // Update status
-            if (mockFund.monthsCovered >= 3) mockFund.status = "SECURE";
-            else if (mockFund.monthsCovered >= 1) mockFund.status = "WARNING";
-            else mockFund.status = "CRITICAL";
-            
-            resolve();
-        }, 800);
-    });
+  try {
+    await apiClient.post("/emergency-fund/contribute", { amount });
+  } catch (err) {
+    // Fundo ainda não inicializado: cria e tenta de novo.
+    if ((err as AxiosError).response?.status === 404) {
+      await apiClient.post("/emergency-fund/setup");
+      await apiClient.post("/emergency-fund/contribute", { amount });
+      return;
+    }
+    throw err;
+  }
 }
 
-export async function withdrawFromFund(amount: number, reason: string): Promise<void> {
-    return new Promise((resolve) => {
-         setTimeout(() => {
-             mockFund.currentAmount -= amount;
-             mockFund.monthsCovered = mockFund.currentAmount / mockFund.monthlyExpensesAverage;
-             
-             // Update status logic
-             if (mockFund.monthsCovered >= 3) mockFund.status = "SECURE";
-             else if (mockFund.monthsCovered >= 1) mockFund.status = "WARNING";
-             else mockFund.status = "CRITICAL";
-
-             mockWithdrawals.push({
-                 id: `w_${Date.now()}`,
-                 amount,
-                 reason,
-                 date: new Date().toISOString(),
-                 userId: "user_01"
-             });
-
-             resolve();
-         }, 800);
-     });
+export async function withdrawFromFund(
+  amount: number,
+  reason: string,
+): Promise<void> {
+  await apiClient.post("/emergency-fund/withdraw", { amount, reason });
 }
 
 export async function getFundHistory(): Promise<EmergencyFundWithdrawal[]> {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve([...mockWithdrawals]);
-        }, 500);
-    });
+  const res = await apiClient.get<EmergencyFundWithdrawalApi[]>(
+    "/emergency-fund/history",
+  );
+  return res.data.map((w) => ({
+    id: w.id,
+    amount: w.amount,
+    reason: w.reason,
+    date: w.createdAt,
+    userId: "",
+  }));
 }
