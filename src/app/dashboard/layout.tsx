@@ -100,7 +100,7 @@ export default function DashboardLayout({
             </div>
 
             {/* MOBILE BOTTOM NAV (Simplified for Mobile) */}
-            <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#06181b] border-t border-white/10 px-6 py-2 flex justify-between items-center z-50">
+            <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#06181b] border-t border-white/10 px-6 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] flex justify-between items-center z-50">
               <Link href="/dashboard">
                 <button
                   className={

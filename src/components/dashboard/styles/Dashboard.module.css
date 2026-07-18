@@ -19,7 +19,8 @@
 
   background-color: var(--bg-deep);
   color: var(--text-main);
-  height: 100vh;
+  height: 100vh; /* fallback */
+  height: 100dvh; /* corrige barra de endereço / standalone */
   display: flex;
   font-family: var(--font-inter), sans-serif;
   overflow: hidden;
@@ -184,11 +185,11 @@
 
 /* --- HEADER --- */
 .header {
-  height: var(--header-height);
+  min-height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 32px;
+  padding: env(safe-area-inset-top) 32px 0; /* acomoda status bar (notch / black-translucent) */
   border-bottom: var(--glass-border);
   background: rgba(2, 8, 9, 0.6); /* Semi-transparent background */
   backdrop-filter: blur(12px);
@@ -418,7 +419,7 @@
     bottom: 0;
     transform: translateX(-100%);
     /* Reserve space for the fixed bottom nav so last items aren't hidden */
-    padding-bottom: 68px;
+    padding-bottom: calc(68px + env(safe-area-inset-bottom));
   }
 
   .sidebar.open {
@@ -426,13 +427,13 @@
   }
 
   .header {
-    padding: 0 16px;
+    padding: env(safe-area-inset-top) 16px 0;
   }
 
   .scrollableArea {
     padding: 0 16px;
     /* Reserve space for the fixed bottom nav (≈ 60px + safe area buffer) */
-    padding-bottom: 80px;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
 }
 
