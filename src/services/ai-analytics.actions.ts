@@ -1,10 +1,11 @@
 import { apiClient } from "./api-client";
-import { 
-  ForecastResponse, 
-  Anomaly, 
-  FinancialHealthResponse, 
+import {
+  ForecastResponse,
+  Anomaly,
+  FinancialHealthResponse,
   GoalForecastResponse,
-  HealthLevel 
+  HealthLevel,
+  TransactionSource
 } from "@/types/api";
 
 // MOCK DATA FOR FALLBACK
@@ -68,7 +69,7 @@ const MOCK_ANOMALIES: Anomaly[] = [
             date: new Date().toISOString(),
             tags: [],
             status: "COMPLETED",
-            source: "MANUAL",
+            source: TransactionSource.MANUAL,
             isRecurring: false,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()

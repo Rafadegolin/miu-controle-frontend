@@ -44,7 +44,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     console.log("Socket: Initializing connection...");
 
     // Initialize socket
-    const socketInstance = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000", {
+    const socketInstance = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001", {
       auth: {
         token,
       },

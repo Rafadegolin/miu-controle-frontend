@@ -147,6 +147,16 @@ export enum TransactionType {
   EXPENSE = "EXPENSE",
 }
 
+export enum TransactionSource {
+  MANUAL = "MANUAL",
+  NOTIFICATION = "NOTIFICATION",
+  OPEN_BANKING = "OPEN_BANKING",
+  IMPORTED = "IMPORTED",
+  OCR = "OCR",
+  RECURRING = "RECURRING",
+  WHATSAPP = "WHATSAPP",
+}
+
 export enum CategoryType {
   EXPENSE = "EXPENSE",
   INCOME = "INCOME",
@@ -268,8 +278,13 @@ export interface Transaction {
   notes?: string;
   receiptUrl?: string;
   status: "PENDING" | "COMPLETED" | "CANCELLED";
-  source: "MANUAL" | "NOTIFICATION" | "OPEN_BANKING" | "IMPORTED";
-  
+  source: TransactionSource;
+
+  // OCR / recibo
+  receiptImageUrl?: string | null;
+  receiptRawText?: string | null;
+  receiptItems?: ReceiptItemDto[] | null;
+
   // New fields
   isRecurring: boolean;
   recurrencePattern?: string;
@@ -492,8 +507,12 @@ export interface CreateTransactionDto {
   notes?: string;
   isRecurring?: boolean;
   recurrencePattern?: string;
-  source?: "MANUAL" | "NOTIFICATION" | "OPEN_BANKING" | "IMPORTED";
+  source?: TransactionSource;
   status?: "PENDING" | "COMPLETED" | "CANCELLED";
+  // OCR confirm: enviados a partir do preview (source é fixado em OCR pelo backend)
+  receiptImageUrl?: string | null;
+  receiptRawText?: string | null;
+  receiptItems?: ReceiptItemDto[];
 }
 
 export interface CreateGoalDto {
@@ -1014,4 +1033,128 @@ export interface GoalFilters {
 
 export interface BudgetFilters {
   period?: BudgetPeriod;
+}
+
+// ============================================
+// NOVO CONTRATO /api/v1 (docs/handoff)
+// ============================================
+
+// Paginação cursor-based: { items, nextCursor, hasMore } (README §Paginação)
+export interface CursorPage<T> {
+  items: T[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
+export interface CursorPaginationParams {
+  cursor?: string;
+  take?: number; // 1–100, default 50
+}
+
+// --- OCR / recibo (transactions.md) ---
+export interface ReceiptItemDto {
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
+export interface ReceiptPreview {
+  description: string | null;
+  amount: number | null;
+  type: TransactionType;
+  date: string | null;
+  merchant: string | null;
+  categoryId: string | null;
+  categoryName: string | null;
+  confidence: number; // 0.0–1.0
+  items: ReceiptItemDto[];
+  rawText: string | null;
+  receiptImageUrl: string | null;
+}
+
+export interface ReceiptAnalysisResponseDto {
+  preview: ReceiptPreview;
+  aiUsed: string;
+  processingMs: number;
+}
+
+// --- Importação OFX/CSV (import.md) ---
+export enum ImportFormat {
+  OFX = "OFX",
+  CSV = "CSV",
+}
+
+export interface ImportPreviewOptions {
+  format: ImportFormat;
+  delimiter?: string; // CSV, default ";"
+  decimalSeparator?: string; // CSV, default ","
+  dateFormat?: string; // DD/MM/YYYY | DD-MM-YYYY | YYYY-MM-DD | MM/DD/YYYY
+  hasHeader?: boolean; // CSV, default true
+  dateColumn?: string; // obrigatório se CSV (nome do header ou índice)
+  amountColumn?: string; // obrigatório se CSV
+  descriptionColumn?: string; // obrigatório se CSV
+  typeColumn?: string; // opcional; se ausente, tipo inferido pelo sinal
+}
+
+export interface ParsedTransactionDto {
+  date: string; // ISO date
+  amount: number; // >= 0.01, sempre positivo
+  type: TransactionType;
+  description: string;
+  externalId?: string; // FITID p/ dedup
+}
+
+export interface ImportPreviewResponse {
+  format: ImportFormat;
+  count: number;
+  summary: {
+    totalIncome: number;
+    totalExpense: number;
+    net: number;
+    firstDate: string | null;
+    lastDate: string | null;
+  };
+  transactions: ParsedTransactionDto[];
+}
+
+export interface ConfirmImportDto {
+  accountId: string;
+  transactions: ParsedTransactionDto[];
+}
+
+export interface ConfirmImportResponse {
+  imported: number;
+  skipped: number;
+  message?: string;
+}
+
+// --- Health score (insights.md) — substitui FinancialHealthResponse ---
+export interface HealthScore {
+  id: string;
+  userId: string;
+  totalScore: number; // 0–1000
+  consistencyScore: number; // 0–300
+  budgetScore: number; // 0–250
+  goalsScore: number; // 0–200
+  emergencyScore: number; // 0–150
+  diversityScore: number; // 0–100
+  level: HealthLevel; // CRITICAL | ATTENTION | HEALTHY | GOOD | EXCELLENT
+  aiInsights: string | null;
+  lastAiAnalysisAt: string | null;
+  updatedAt: string;
+}
+
+export interface HealthScoreAchievement {
+  id: string;
+  code: string;
+  name: string;
+  points: number;
+  unlockedAt?: string;
+}
+
+export interface HealthScoreAchievements {
+  unlocked: HealthScoreAchievement[];
+  locked: HealthScoreAchievement[];
+  totalPoints: number;
 }

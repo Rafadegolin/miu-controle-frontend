@@ -39,7 +39,7 @@ import {
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import api from "@/services/api";
-import { Account, Category, Transaction, TransactionType } from "@/types/api";
+import { Account, Category, Transaction, TransactionType, TransactionSource } from "@/types/api";
 
 // Helper to render dynamic Lucide icons
 const DynamicIcon = ({ name, size = 16 }: { name: string; size?: number }) => {
@@ -149,7 +149,7 @@ export function EditTransactionModal({
         ...values,
         date: format(values.date, "yyyy-MM-dd"),
         tags: tagsArray,
-        source: "MANUAL" as const,
+        source: TransactionSource.MANUAL,
         status: transaction.status,
       });
 

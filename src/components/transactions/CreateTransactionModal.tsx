@@ -39,7 +39,7 @@ import {
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import api from "@/services/api";
-import { Account, Category, TransactionType } from "@/types/api";
+import { Account, Category, TransactionType, TransactionSource } from "@/types/api";
 
 import { BrandSelect } from "@/components/brands/BrandSelect"; // Added Import
 
@@ -134,7 +134,7 @@ export function CreateTransactionModal({
         ...values,
         date: format(values.date, "yyyy-MM-dd"),
         tags: tagsArray,
-        source: "MANUAL",
+        source: TransactionSource.MANUAL,
       });
 
       form.reset();
