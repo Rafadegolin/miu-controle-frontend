@@ -1,5 +1,5 @@
 import { apiClient } from "./api-client";
-// Tipos placeholder - atualizar conforme types/api.ts evoluir
+
 export interface GamificationProfile {
   level: number;
   currentXp: number;
@@ -16,73 +16,59 @@ export interface Mission {
   isClaimed: boolean;
 }
 
-// Mock Data Store
-let mockMissions: Mission[] = [
-  {
-    id: "1",
-    title: "Registrar 3 gastos",
-    description: "Adicione 3 novas transações de despesa hoje.",
-    rewardXp: 150,
-    isCompleted: true,
-    isClaimed: false,
-  },
-  {
-    id: "2",
-    title: "Bater a meta de água",
-    description: "Beba 2 litros de água (exemplo de hábito).",
-    rewardXp: 100,
-    isCompleted: false,
-    isClaimed: false,
-  },
-  {
-    id: "3",
-    title: "Revisar Orçamento",
-    description: "Acesse a tela de orçamentos.",
-    rewardXp: 200,
-    isCompleted: true,
-    isClaimed: true,
-  }
-];
+interface ProfileApi {
+  level: number;
+  currentXp: number;
+  streakCurrent: number;
+  streakLongest: number;
+  nextLevelXp: number;
+  progress: number;
+}
 
-let mockProfile: GamificationProfile = {
-  level: 5,
-  currentXp: 2800,
-  nextLevelXp: 5000,
-  streak: 12,
-};
+interface UserMissionApi {
+  id: string;
+  status: "ACTIVE" | "COMPLETED" | "EXPIRED" | "FAILED";
+  progress: number;
+  target: number;
+  mission: {
+    title: string;
+    description: string;
+    xpReward: number;
+  };
+}
 
 export const gamificationActions = {
   async getProfile(): Promise<GamificationProfile> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ ...mockProfile });
-      }, 500);
-    });
+    const res = await apiClient.get<ProfileApi>("/gamification/profile");
+    const p = res.data;
+    return {
+      level: p.level,
+      currentXp: p.currentXp,
+      nextLevelXp: p.nextLevelXp,
+      streak: p.streakCurrent,
+    };
   },
 
   async getMissions(): Promise<Mission[]> {
-     return new Promise((resolve) => {
-       setTimeout(() => {
-         resolve([...mockMissions]);
-       }, 500);
-     });
+    const res = await apiClient.get<UserMissionApi[]>("/gamification/missions");
+    return res.data.map((m) => ({
+      id: m.id,
+      title: m.mission.title,
+      description: m.mission.description,
+      rewardXp: m.mission.xpReward,
+      isCompleted: m.status === "COMPLETED",
+      // O backend concede a recompensa automaticamente ao concluir — não há
+      // "resgate" manual, então concluída == coletada.
+      isClaimed: m.status === "COMPLETED",
+    }));
   },
 
-  async claimMissionReward(missionId: string): Promise<{ newXp: number; leveledUp: boolean }> {
-     return new Promise((resolve) => {
-       setTimeout(() => {
-          // Update mock state
-          const missionIndex = mockMissions.findIndex(m => m.id === missionId);
-          if (missionIndex !== -1) {
-            mockMissions[missionIndex].isClaimed = true;
-            mockProfile.currentXp += mockMissions[missionIndex].rewardXp;
-          }
-
-          resolve({
-            newXp: mockProfile.currentXp,
-            leveledUp: false,
-          });
-       }, 800);
-     });
-  }
+  // Mantido por compatibilidade com o hook; o backend não expõe resgate manual
+  // (a recompensa é concedida automaticamente ao concluir a missão).
+  async claimMissionReward(
+    _missionId?: string,
+  ): Promise<{ newXp: number; leveledUp: boolean }> {
+    void _missionId;
+    return { newXp: 0, leveledUp: false };
+  },
 };

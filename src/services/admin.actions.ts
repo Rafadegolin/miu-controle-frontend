@@ -1,6 +1,5 @@
-"use server";
-
-import { User, SubscriptionTier } from "@/types/api";
+import { apiClient } from "./api-client";
+import { User } from "@/types/api";
 
 export interface AdminStats {
   totalUsers: number;
@@ -24,64 +23,91 @@ export interface SlowQuery {
   timestamp: string;
 }
 
-// Mock Data
-let mockUsers: User[] = [
-  { id: "1", email: "user1@example.com", fullName: "Alice Silva", subscriptionTier: SubscriptionTier.PRO, emailVerified: true, preferredCurrency: "BRL", createdAt: "2024-01-15T10:00:00Z", updatedAt: "2024-01-15T10:00:00Z" },
-  { id: "2", email: "user2@example.com", fullName: "Bob Santos", subscriptionTier: SubscriptionTier.FREE, emailVerified: true, preferredCurrency: "BRL", createdAt: "2024-02-20T14:30:00Z", updatedAt: "2024-02-20T14:30:00Z" },
-  { id: "3", email: "charlie@example.com", fullName: "Charlie Oliveira", subscriptionTier: SubscriptionTier.FAMILY, emailVerified: false, preferredCurrency: "USD", createdAt: "2024-03-05T09:15:00Z", updatedAt: "2024-03-05T09:15:00Z" },
-];
+interface AdminStatsApi {
+  users: { total: number; active: number };
+  subscriptions: { active: number };
+  system: { transactions: number; health: string };
+}
+
+interface CacheStatsApi {
+  hits: number;
+  misses: number;
+  total: number;
+  hitRate: number;
+  timestamp: string;
+}
+
+interface SlowQueryApi {
+  query: string;
+  params: string;
+  duration: number;
+  timestamp: string;
+}
+
+interface AdminUserApi {
+  id: string;
+  email: string;
+  fullName: string;
+  avatarUrl?: string | null;
+  emailVerified?: boolean;
+  preferredCurrency?: string;
+  subscriptionTier?: User["subscriptionTier"];
+  subscription?: { tier?: User["subscriptionTier"] } | null;
+  createdAt: string;
+  updatedAt?: string;
+}
 
 export async function getAdminStats(): Promise<AdminStats> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        totalUsers: 1250,
-        activeUsers: 843,
-        activeSubscriptions: 420,
-        totalRevenue: 15400.00,
-        transactionVolume: 450020.50,
-      });
-    }, 600);
-  });
+  const res = await apiClient.get<AdminStatsApi>("/admin/dashboard/stats");
+  const d = res.data;
+  return {
+    totalUsers: d.users.total,
+    activeUsers: d.users.active,
+    activeSubscriptions: d.subscriptions.active,
+    totalRevenue: 0, // não rastreado no backend
+    transactionVolume: d.system.transactions,
+  };
 }
 
 export async function getUsers(): Promise<User[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([...mockUsers]);
-    }, 500);
-  });
+  const res = await apiClient.get<{ data: AdminUserApi[] }>(
+    "/users/admin/list",
+    { params: { limit: 100 } },
+  );
+  return res.data.data.map((u) => ({
+    id: u.id,
+    email: u.email,
+    fullName: u.fullName,
+    avatarUrl: u.avatarUrl ?? undefined,
+    subscriptionTier: u.subscription?.tier ?? u.subscriptionTier ?? ("FREE" as User["subscriptionTier"]),
+    emailVerified: u.emailVerified ?? false,
+    preferredCurrency: u.preferredCurrency ?? "BRL",
+    createdAt: u.createdAt,
+    updatedAt: u.updatedAt ?? u.createdAt,
+  }));
 }
 
 export async function banUser(userId: string): Promise<void> {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            console.log(`User ${userId} banned`);
-            resolve();
-        }, 500);
-    });
+  await apiClient.patch(`/users/admin/${userId}/ban`, { isActive: false });
 }
 
 export async function getCacheStats(): Promise<CacheStats> {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                hits: 15420,
-                misses: 230,
-                keys: 450,
-                memoryUsage: "24.5 MB"
-            });
-        }, 400);
-    });
+  const res = await apiClient.get<CacheStatsApi>("/admin/cache-stats");
+  const d = res.data;
+  return {
+    hits: d.hits,
+    misses: d.misses,
+    keys: d.total,
+    memoryUsage: `${d.hitRate.toFixed(1)}% hit`,
+  };
 }
 
 export async function getSlowQueries(): Promise<SlowQuery[]> {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve([
-                { id: "1", query: "SELECT * FROM transactions WHERE user_id = '...' AND date > '2023-01-01'", duration: 2500, timestamp: new Date().toISOString() },
-                { id: "2", query: "SELECT count(*) FROM users", duration: 800, timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString() },
-            ]);
-        }, 400);
-    });
+  const res = await apiClient.get<SlowQueryApi[]>("/admin/slow-queries");
+  return res.data.map((q, i) => ({
+    id: String(i),
+    query: q.query,
+    duration: q.duration,
+    timestamp: q.timestamp,
+  }));
 }

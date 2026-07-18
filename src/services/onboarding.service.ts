@@ -16,10 +16,14 @@ export interface CompleteOnboardingData {
 
 export const onboardingService = {
   getStatus: async (): Promise<OnboardingStatus> => {
-    // Mock for now until endpoint is confirmed live
-    // const response = await api.get('/onboarding/status');
-    // return response.data;
-    return { hasCompletedOnboarding: false, currentStep: 'WELCOME' };
+    const response = await api.get<{
+      hasCompletedOnboarding: boolean;
+      onboardingStep: number;
+    }>('/onboarding/status');
+    return {
+      hasCompletedOnboarding: response.data.hasCompletedOnboarding,
+      currentStep: response.data.hasCompletedOnboarding ? 'COMPLETED' : 'WELCOME',
+    };
   },
 
   updateStep: async (step: string) => {

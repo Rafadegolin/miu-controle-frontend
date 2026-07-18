@@ -1,94 +1,46 @@
-"use server";
+import { reportsActions } from "./reports.actions";
+import { MonthlyReport, AnalysisInsight } from "@/types/api";
 
-import { MonthlyReport, AnalysisInsight, AnalysisAnomaly } from "@/types/api";
-
-// Mock Data Generators
-
-function generateInsights(expenseChange: number, savingsRate: number): AnalysisInsight[] {
-  const insights: AnalysisInsight[] = [];
-
-  if (expenseChange > 10) {
-    insights.push({
-      id: "1",
-      type: "NEGATIVE",
-      relatedMetric: "EXPENSE",
-      message: `Despesas subiram ${expenseChange.toFixed(0)}%`,
-      explanation: "Identificamos um aumento atípico em gastos com Lazer e Restaurantes neste mês comparado à sia média.",
-      actionItem: "Considere definir um limite semanal para saídas.",
-    });
-  } else if (expenseChange < -5) {
-    insights.push({
-      id: "1",
-      type: "POSITIVE",
-      relatedMetric: "EXPENSE",
-      message: "Ótimo controle de gastos!",
-      explanation: "Você conseguiu reduzir suas despesas fixas em relação ao mês anterior.",
-    });
-  }
-
-  if (savingsRate < 10) {
-    insights.push({
-      id: "2",
-      type: "WARNING",
-      relatedMetric: "SAVINGS_RATE",
-      message: "Taxa de poupança baixa",
-      explanation: `Sua taxa de poupança foi de apenas ${savingsRate.toFixed(1)}%. O ideal é manter acima de 20%.`,
-      actionItem: "Revise assinaturas não utilizadas.",
-    });
-  } else {
-    insights.push({
-      id: "2",
-      type: "POSITIVE",
-      relatedMetric: "SAVINGS_RATE",
-      message: "Poupança saudável",
-      explanation: "Você está guardando uma parcela excelente da sua renda.",
-    });
-  }
-
-  return insights;
+// Converte "YYYY-MM" no range de datas do mês (para os endpoints de /reports).
+function monthToRange(month: string): { startDate: string; endDate: string } {
+  const [y, m] = month.split("-").map(Number);
+  const lastDay = new Date(y, m, 0).getDate();
+  return {
+    startDate: `${month}-01`,
+    endDate: `${month}-${String(lastDay).padStart(2, "0")}`,
+  };
 }
 
-export async function getMonthlyReport(month: string = "2024-03"): Promise<MonthlyReport> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Mock random variations for demo purposes
-      const income = 8500;
-      const expense = 4200 + Math.random() * 2000;
-      const balance = income - expense;
-      const savingsRate = (balance / income) * 100;
-      
-      const expenseChange = ((Math.random() * 40) - 20); // -20% to +20%
+const TYPE_MAP: Record<string, AnalysisInsight["type"]> = {
+  positive: "POSITIVE",
+  negative: "NEGATIVE",
+  warning: "WARNING",
+  info: "NEUTRAL",
+};
 
-      resolve({
-        month,
-        stats: {
-          income,
-          expense,
-          balance,
-          savingsRate,
-        },
-        comparison: {
-          incomeChange: 2.5,
-          expenseChange,
-          savingsRateChange: expenseChange * -0.5,
-        },
-        insights: generateInsights(expenseChange, savingsRate),
-        anomalies: [
-          {
-            categoryId: "cat1",
-            categoryName: "Restaurantes",
-            amount: 1200,
-            averageAmount: 600,
-            deviationPercentage: 100,
-            severity: "HIGH",
-          }
-        ],
-        topCategories: [
-            { name: "Moradia", amount: 2500, percentage: 40 },
-            { name: "Restaurantes", amount: 1200, percentage: 20 },
-            { name: "Transporte", amount: 800, percentage: 12 },
-        ]
-      });
-    }, 800);
-  });
+/**
+ * Reconcilia o antigo "MonthlyReport" (mock) com dados reais: os insights vêm de
+ * GET /reports/insights. A página de relatórios só consome `insights`/`anomalies`
+ * daqui (os KPIs vêm do dashboard real), então stats/comparison ficam zerados.
+ */
+export async function getMonthlyReport(
+  month: string = new Date().toISOString().slice(0, 7),
+): Promise<MonthlyReport> {
+  const range = monthToRange(month);
+  const insights = await reportsActions.getInsights(range);
+
+  return {
+    month,
+    stats: { income: 0, expense: 0, balance: 0, savingsRate: 0 },
+    comparison: { incomeChange: 0, expenseChange: 0, savingsRateChange: 0 },
+    insights: insights.map((ins, i) => ({
+      id: String(i),
+      type: TYPE_MAP[ins.type] ?? "NEUTRAL",
+      relatedMetric: "BALANCE",
+      message: ins.title,
+      explanation: ins.message,
+    })),
+    anomalies: [],
+    topCategories: [],
+  };
 }

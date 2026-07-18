@@ -1,99 +1,35 @@
-"use server";
-
+import { apiClient } from "./api-client";
 import { Brand } from "@/types/api";
 
-let mockBrands: Brand[] = [
-  {
-    id: "brand1",
-    name: "Uber",
-    slug: "uber",
-    logoUrl: "https://logo.clearbit.com/uber.com",
-    website: "uber.com",
-    matchPatterns: ["uber", "uber*trip"],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "brand2",
-    name: "Netflix",
-    slug: "netflix",
-    logoUrl: "https://logo.clearbit.com/netflix.com",
-    website: "netflix.com",
-    matchPatterns: ["netflix.com", "netflix"],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "brand3",
-    name: "iFood",
-    slug: "ifood",
-    logoUrl: "https://logo.clearbit.com/ifood.com.br",
-    website: "ifood.com.br",
-    matchPatterns: ["ifood", "ifd*"],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "brand4",
-    name: "Amazon",
-    slug: "amazon",
-    logoUrl: "https://logo.clearbit.com/amazon.com.br",
-    website: "amazon.com.br",
-    matchPatterns: ["amazon", "amzn", "kindle"],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "brand5",
-    name: "Spotify",
-    slug: "spotify",
-    logoUrl: "https://logo.clearbit.com/spotify.com",
-    website: "spotify.com",
-    matchPatterns: ["spotify"],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
-
 export async function getBrands(): Promise<Brand[]> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve([...mockBrands]), 500);
-  });
+  const res = await apiClient.get<Brand[]>("/brands");
+  return res.data;
 }
 
+// Nota: no backend atual, as mutações de marca exigem ADMIN mas o controller
+// não popula req.user (sem JwtAuthGuard) → retornam 403 até o backend corrigir.
 export async function createBrand(data: Partial<Brand>): Promise<Brand> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-        const newBrand: Brand = {
-            id: Math.random().toString(36).substr(2, 9),
-            name: data.name || "Nova Marca",
-            slug: data.slug || "nova-marca",
-            logoUrl: data.logoUrl,
-            website: data.website,
-            matchPatterns: data.matchPatterns || [],
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-        };
-        mockBrands.push(newBrand);
-        resolve(newBrand);
-    }, 500);
+  const res = await apiClient.post<Brand>("/brands", {
+    name: data.name,
+    slug: data.slug,
+    matchPatterns: data.matchPatterns ?? [],
+    website: data.website,
+    logoUrl: data.logoUrl,
   });
+  return res.data;
 }
 
 export async function deleteBrand(id: string): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-        mockBrands = mockBrands.filter(b => b.id !== id);
-        resolve();
-    }, 500);
-  });
+  await apiClient.delete(`/brands/${id}`);
 }
 
-export async function checkBrandPattern(pattern: string, text: string): Promise<boolean> {
-  // Simple mock matching
-  return new Promise((resolve) => {
-      setTimeout(() => {
-          resolve(text.toLowerCase().includes(pattern.toLowerCase()));
-      }, 300);
+export async function checkBrandPattern(
+  pattern: string,
+  text: string,
+): Promise<boolean> {
+  const res = await apiClient.post<{ match: boolean }>("/brands/check-pattern", {
+    pattern,
+    text,
   });
+  return res.data.match;
 }
