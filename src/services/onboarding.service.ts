@@ -26,8 +26,9 @@ export const onboardingService = {
     };
   },
 
-  updateStep: async (step: string) => {
-    await api.post('/onboarding/step', { status: step });
+  updateStep: async (step: number) => {
+    // UpdateOnboardingStepDto: { step: int 0–6 }
+    await api.post('/onboarding/step', { step });
   },
 
   completeOnboarding: async (data: CompleteOnboardingData) => {

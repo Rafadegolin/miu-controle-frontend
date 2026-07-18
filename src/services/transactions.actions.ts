@@ -6,13 +6,28 @@ import type {
   TransactionSummaryResponse,
   TransactionStatsMonthly,
   ReceiptAnalysisResponseDto,
+  CursorPage,
 } from "@/types/api";
 
 export const transactionsActions = {
+  // GET /transactions agora retorna { items, nextCursor, hasMore }. Desembrulha
+  // para Transaction[] (os consumidores atuais esperam um array).
   async getTransactions(filters?: TransactionFilters): Promise<Transaction[]> {
-    const response = await apiClient.get<Transaction[]>("/transactions", {
-      params: filters,
-    });
+    const response = await apiClient.get<CursorPage<Transaction> | Transaction[]>(
+      "/transactions",
+      { params: filters }
+    );
+    return Array.isArray(response.data) ? response.data : response.data.items;
+  },
+
+  // Versão paginada por cursor (para scroll infinito / useInfiniteQuery).
+  async getTransactionsPage(
+    filters?: TransactionFilters
+  ): Promise<CursorPage<Transaction>> {
+    const response = await apiClient.get<CursorPage<Transaction>>(
+      "/transactions",
+      { params: filters }
+    );
     return response.data;
   },
 

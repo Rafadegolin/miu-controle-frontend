@@ -4,8 +4,8 @@ import { useEffect } from "react";
 import { useSocket } from "@/contexts/SocketContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { RefreshCcw } from "lucide-react";
 
+// Nomes de eventos conforme docs/handoff/README.md (WS_EVENTS).
 export function SyncListener() {
   const { socket } = useSocket();
   const queryClient = useQueryClient();
@@ -13,38 +13,49 @@ export function SyncListener() {
   useEffect(() => {
     if (!socket) return;
 
-    const onSyncTransactions = (data?: any) => {
-      console.log("🔄 SYNC EVENT: Transactions updated externally", data);
-      
-      // Invalidate queries to force refetch
+    const invalidateTransactions = () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
-      queryClient.invalidateQueries({ queryKey: ["stats"] });
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    };
 
-      toast("Dados atualizados", {
-        description: "Novas transações detectadas.",
-        icon: <RefreshCcw size={16} className="animate-spin" />,
-        duration: 2000,
+    const onBalanceUpdated = () => {
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    };
+
+    const onBudgetAlert = (data?: { title?: string; message?: string }) => {
+      queryClient.invalidateQueries({ queryKey: ["budgets"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      toast.warning(data?.title ?? "Alerta de orçamento", {
+        description: data?.message,
       });
     };
 
-    const onNotification = (data: { title: string; message: string }) => {
-        console.log("🔔 NOTIFICATION EVENT:", data);
-        toast(data.title, {
-            description: data.message,
-        });
-        // Refresh notifications list
-        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    const onGoalMilestone = (data?: { title?: string; message?: string }) => {
+      queryClient.invalidateQueries({ queryKey: ["goals"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      toast.success(data?.title ?? "Sua meta atingiu um marco!", {
+        description: data?.message,
+      });
     };
 
-    socket.on("sync:transactions", onSyncTransactions);
-    socket.on("notification", onNotification);
+    socket.on("transaction.created", invalidateTransactions);
+    socket.on("transaction.updated", invalidateTransactions);
+    socket.on("transaction.deleted", invalidateTransactions);
+    socket.on("balance.updated", onBalanceUpdated);
+    socket.on("budget.alert", onBudgetAlert);
+    socket.on("goal.milestone", onGoalMilestone);
 
     return () => {
-      socket.off("sync:transactions", onSyncTransactions);
-      socket.off("notification", onNotification);
+      socket.off("transaction.created", invalidateTransactions);
+      socket.off("transaction.updated", invalidateTransactions);
+      socket.off("transaction.deleted", invalidateTransactions);
+      socket.off("balance.updated", onBalanceUpdated);
+      socket.off("budget.alert", onBudgetAlert);
+      socket.off("goal.milestone", onGoalMilestone);
     };
   }, [socket, queryClient]);
 
-  return null; // This component handles logic only, no UI
+  return null;
 }

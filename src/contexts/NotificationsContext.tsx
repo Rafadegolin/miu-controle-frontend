@@ -134,16 +134,14 @@ export const NotificationsProvider = ({ children }: { children: React.ReactNode 
     const handleNewNotification = (notification: Notification) => {
       setNotifications((prev) => [notification, ...prev]);
       setUnreadCount((prev) => prev + 1);
-      
-      // Optional: Show toast
-      // toast(notification.title, { description: notification.message });
-      console.log("New notification received:", notification);
+      toast(notification.title, { description: notification.message });
     };
 
-    socket.on("NOTIFICATION_NEW", handleNewNotification);
+    // Evento real do backend: notification.new (docs/handoff/README.md)
+    socket.on("notification.new", handleNewNotification);
 
     return () => {
-      socket.off("NOTIFICATION_NEW", handleNewNotification);
+      socket.off("notification.new", handleNewNotification);
     };
   }, [socket]);
 

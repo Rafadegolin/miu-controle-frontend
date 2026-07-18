@@ -977,8 +977,14 @@ export interface TransactionFilters {
   accountId?: string;
   categoryId?: string;
   type?: TransactionType;
+  status?: "PENDING" | "COMPLETED" | "CANCELLED";
+  search?: string;
   startDate?: string;
   endDate?: string;
+  // Paginação cursor (novo backend)
+  cursor?: string;
+  take?: number;
+  // Legado (offset) — mantido por compat
   page?: number;
   limit?: number;
 }

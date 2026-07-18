@@ -70,6 +70,7 @@ export default function TransactionsPage() {
                     startDate,
                     endDate,
                     type: typeFilter === "ALL" ? undefined : typeFilter,
+                    take: 100,
                 }),
                 api.getMonthlyStats({ month: monthStr })
             ]);
