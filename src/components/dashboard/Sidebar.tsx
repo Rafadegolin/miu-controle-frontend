@@ -19,6 +19,7 @@ import {
   PiggyBank,
   Repeat,
   MessageSquare,
+  MessageCircle,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import styles from "@/components/dashboard/styles/Dashboard.module.css";
@@ -96,6 +97,12 @@ const menuItems = [
     icon: HeartPulse,
     label: "Saúde Financeira",
     href: "/dashboard/financial-health",
+  },
+  {
+    id: "whatsapp",
+    icon: MessageCircle,
+    label: "WhatsApp",
+    href: "/dashboard/whatsapp",
   },
   {
     id: "feedback",

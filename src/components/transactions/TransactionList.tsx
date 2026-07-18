@@ -18,6 +18,7 @@ import {
 import { Transaction, TransactionType } from "@/types/api";
 import styles from "@/components/dashboard/styles/Dashboard.module.css";
 import { formatCurrency } from "@/lib/utils";
+import { TransactionSourceBadge } from "./TransactionSourceBadge";
 
 interface TransactionListProps {
     transactions: Transaction[];
@@ -101,7 +102,10 @@ export function TransactionList({ transactions, isLoading, onEdit, onDelete }: T
                                                 <Icon size={20} />
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="font-bold text-white">{tx.description}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-white">{tx.description}</span>
+                                                    <TransactionSourceBadge source={tx.source} />
+                                                </div>
                                                 {tx.merchant && (
                                                     <span className="text-xs text-gray-400">{tx.merchant}</span>
                                                 )}

@@ -4,13 +4,15 @@ import { useState, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, subMonths, addMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { AnimatePresence, motion } from "framer-motion";
-import { 
-    Search, 
-    Filter, 
-    Plus, 
+import {
+    Search,
+    Filter,
+    Plus,
     ChevronLeft,
     ChevronRight,
-    Loader2
+    Loader2,
+    UploadCloud,
+    Camera
 } from "lucide-react";
 
 import styles from "@/components/dashboard/styles/Dashboard.module.css";
@@ -21,6 +23,8 @@ import { TransactionStats } from "@/components/transactions/TransactionStats";
 import { CreateTransactionModal } from "@/components/transactions/CreateTransactionModal";
 import { EditTransactionModal } from "@/components/transactions/EditTransactionModal";
 import { DeleteTransactionDialog } from "@/components/transactions/DeleteTransactionDialog";
+import { ReceiptScanModal } from "@/components/transactions/ReceiptScanModal";
+import { ImportTransactionsModal } from "@/components/import/ImportTransactionsModal";
 import api from "@/services/api";
 import { 
     Select,
@@ -39,6 +43,8 @@ export default function TransactionsPage() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isReceiptOpen, setIsReceiptOpen] = useState(false);
+    const [isImportOpen, setIsImportOpen] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -143,13 +149,26 @@ export default function TransactionsPage() {
                         <p className="text-gray-400">Gerencie suas entradas e saídas.</p>
                     </div>
                     
-                    <div className="flex gap-3 w-full md:w-auto">
-                        
-                        <button 
+                    <div className="flex flex-wrap gap-3 w-full md:w-auto">
+                        <button
+                            onClick={() => setIsReceiptOpen(true)}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-medium hover:bg-white/10 transition-all"
+                        >
+                            <Camera size={18} />
+                            <span className="hidden sm:inline">Escanear recibo</span>
+                        </button>
+                        <button
+                            onClick={() => setIsImportOpen(true)}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-medium hover:bg-white/10 transition-all"
+                        >
+                            <UploadCloud size={18} />
+                            <span className="hidden sm:inline">Importar</span>
+                        </button>
+                        <button
                             onClick={() => setIsCreateModalOpen(true)}
                             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#32d6a5] text-[#020809] font-bold hover:bg-[#20bca3] transition-all shadow-lg shadow-[#32d6a5]/20"
                         >
-                            <Plus size={18} /> 
+                            <Plus size={18} />
                             <span>Nova Transação</span>
                         </button>
                     </div>
@@ -297,6 +316,18 @@ export default function TransactionsPage() {
                     onConfirm={handleConfirmDelete}
                     transaction={selectedTransaction}
                     isDeleting={isDeleting}
+                />
+
+                <ReceiptScanModal
+                    isOpen={isReceiptOpen}
+                    onClose={() => setIsReceiptOpen(false)}
+                    onSuccess={loadData}
+                />
+
+                <ImportTransactionsModal
+                    isOpen={isImportOpen}
+                    onClose={() => setIsImportOpen(false)}
+                    onSuccess={loadData}
                 />
             </div>
         </div>

@@ -5,6 +5,7 @@ import type {
   TransactionFilters,
   TransactionSummaryResponse,
   TransactionStatsMonthly,
+  ReceiptAnalysisResponseDto,
 } from "@/types/api";
 
 export const transactionsActions = {
@@ -60,6 +61,27 @@ export const transactionsActions = {
 
   async deleteReceipt(id: string): Promise<{ message: string }> {
     const response = await apiClient.delete(`/transactions/${id}/receipt`);
+    return response.data;
+  },
+
+  // OCR: analisa a imagem do recibo (preview, NÃO salva).
+  async analyzeReceipt(image: File): Promise<ReceiptAnalysisResponseDto> {
+    const formData = new FormData();
+    formData.append("image", image);
+    const response = await apiClient.post<ReceiptAnalysisResponseDto>(
+      "/transactions/from-receipt",
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    return response.data;
+  },
+
+  // OCR: confirma e persiste a transação (source é fixado em OCR pelo backend).
+  async confirmReceipt(data: CreateTransactionDto): Promise<Transaction> {
+    const response = await apiClient.post<Transaction>(
+      "/transactions/from-receipt/confirm",
+      data
+    );
     return response.data;
   },
 
