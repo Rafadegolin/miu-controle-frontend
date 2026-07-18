@@ -2,15 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Server, Globe, Tag, ArrowRightLeft, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Users, Server, Tag, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const adminLinks = [
   { href: "/dashboard/admin", label: "Visão Geral", icon: LayoutDashboard, exact: true },
   { href: "/dashboard/admin/users", label: "Usuários", icon: Users },
-  { href: "/dashboard/admin/currencies", label: "Moedas", icon: Globe },
   { href: "/dashboard/admin/brands", label: "Marcas", icon: Tag },
-  { href: "/dashboard/admin/exchange-rates", label: "Câmbio", icon: ArrowRightLeft },
   { href: "/dashboard/admin/feedback", label: "Feedbacks", icon: MessageSquare },
   { href: "/dashboard/admin/system", label: "Sistema", icon: Server },
 ];

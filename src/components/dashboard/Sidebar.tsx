@@ -8,9 +8,7 @@ import {
   Wallet,
   PieChart,
   Target,
-  TrendingDown,
   TrendingUp,
-  Link as LinkIcon,
   User,
   Settings,
   Sparkles,
@@ -81,12 +79,6 @@ const menuItems = [
     href: "/dashboard/simulator",
   },
   {
-    id: "inflation",
-    icon: TrendingDown,
-    label: "Simulador Inflação",
-    href: "/dashboard/simulator/inflation",
-  },
-  {
     id: "recurring",
     icon: Repeat,
     label: "Assinaturas",
@@ -104,12 +96,6 @@ const menuItems = [
     icon: HeartPulse,
     label: "Saúde Financeira",
     href: "/dashboard/financial-health",
-  },
-  {
-    id: "sync",
-    icon: LinkIcon,
-    label: "Conexões & Hub",
-    href: "/dashboard/sync",
   },
   {
     id: "feedback",

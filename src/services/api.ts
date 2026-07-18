@@ -16,7 +16,6 @@ import { reportsActions } from "./reports.actions";
 import { gamificationActions } from "./gamification.actions";
 import { aiActions } from "./ai.actions";
 import { planningActions } from "./planning.actions";
-import { inflationActions } from "./inflation.actions";
 import * as emergencyFundActions from "./emergency-fund.actions";
 
 // Re-export actions for individual usage
@@ -33,7 +32,6 @@ export {
   gamificationActions,
   aiActions,
   planningActions,
-  inflationActions,
   emergencyFundActions,
 };
 
@@ -51,7 +49,6 @@ const api = {
   ...gamificationActions,
   ...aiActions,
   ...planningActions,
-  ...inflationActions,
   ...emergencyFundActions,
 };
 

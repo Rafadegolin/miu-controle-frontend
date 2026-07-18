@@ -199,14 +199,6 @@ export enum RecommendationType {
 
 // === ENTIDADES ===
 
-export interface Currency {
-  code: string; // ISO 4217 (BRL, USD)
-  name: string;
-  symbol: string;
-  isActive: boolean;
-  locale?: string; // Optional locale for formatting (pt-BR, en-US)
-}
-
 export interface User {
   id: string;
   email: string;
@@ -706,34 +698,6 @@ export interface PurchaseLinksSummaryResponse {
   totalBRL: number;
   byCurrency: Record<string, number>;
   links: PurchaseLink[];
-}
-
-export interface ExchangeRate {
-  id: string;
-  fromCurrency: string;
-  toCurrency: string;
-  rate: number;
-  date: string;
-  source: "API" | "MANUAL";
-}
-
-export interface ConversionResponse {
-  rate: number;
-  convertedAmount: number;
-  date: string;
-  from: string;
-  to: string;
-}
-
-export interface ConsolidatedBalanceResponse {
-  totalBalance: number;
-  preferredCurrency: string;
-  accounts: Array<{
-    accountId: string;
-    originalBalance: number;
-    originalCurrency: string;
-    convertedBalance: number;
-  }>;
 }
 
 export type FeedbackType = "BUG" | "SUGGESTION" | "OTHER";

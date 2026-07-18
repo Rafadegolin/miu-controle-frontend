@@ -11,13 +11,12 @@ import { useAuth } from '@/contexts/AuthContext';
 // Steps
 import StepWelcome from './steps/StepWelcome';
 import StepTheme from './steps/StepTheme';
-import StepCurrency from './steps/StepCurrency';
 import StepProfile from './steps/StepProfile';
 import StepCompletion from './steps/StepCompletion';
 
-type Step = 'WELCOME' | 'THEME' | 'CURRENCY' | 'PROFILE' | 'COMPLETED';
+type Step = 'WELCOME' | 'THEME' | 'PROFILE' | 'COMPLETED';
 
-const stepsOrder: Step[] = ['WELCOME', 'THEME', 'CURRENCY', 'PROFILE', 'COMPLETED'];
+const stepsOrder: Step[] = ['WELCOME', 'THEME', 'PROFILE', 'COMPLETED'];
 
 export default function OnboardingContainer() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -97,11 +96,6 @@ export default function OnboardingContainer() {
                    <StepTheme onNext={nextStep} onPrev={prevStep} />
                  </StepWrapper>
                )}
-               {currentStep === 'CURRENCY' && (
-                 <StepWrapper key="currency">
-                   <StepCurrency onNext={nextStep} onPrev={prevStep} />
-                 </StepWrapper>
-               )}
                {currentStep === 'PROFILE' && (
                  <StepWrapper key="profile">
                     <StepProfile onComplete={methods.handleSubmit(handleComplete)} onPrev={prevStep} />
@@ -119,7 +113,7 @@ export default function OnboardingContainer() {
 
       {/* Progress Dots */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-        {stepsOrder.slice(0, 4).map((step, index) => (
+        {stepsOrder.slice(0, stepsOrder.length - 1).map((step, index) => (
           <div 
             key={step}
             className={`h-2 rounded-full transition-all duration-300 ${

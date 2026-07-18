@@ -2,9 +2,7 @@ import { apiClient } from "./api-client";
 import {
   ForecastResponse,
   Anomaly,
-  FinancialHealthResponse,
   GoalForecastResponse,
-  HealthLevel,
   TransactionSource
 } from "@/types/api";
 
@@ -29,25 +27,6 @@ const MOCK_FORECAST: ForecastResponse = {
     expenseTrendSlope: 50.5,
     incomeTrendSlope: 120.0
   }
-};
-
-const MOCK_HEALTH: FinancialHealthResponse = {
-  score: 820,
-  level: HealthLevel.EXCELLENT,
-  pilars: {
-    consistency: { score: 85, maxScore: 100, label: "Consistência", color: "#32d6a5", icon: "CheckCircle", percentage: 85 },
-    budget: { score: 90, maxScore: 100, label: "Orçamento", color: "#32d6a5", icon: "PieChart", percentage: 90 },
-    goals: { score: 70, maxScore: 100, label: "Metas", color: "#F59E0B", icon: "Target", percentage: 70 },
-    emergencyFund: { score: 100, maxScore: 100, label: "Reserva", color: "#32d6a5", icon: "Shield", percentage: 100 },
-    diversification: { score: 60, maxScore: 100, label: "Diversificação", color: "#F59E0B", icon: "TrendingUp", percentage: 60 }
-  },
-  history: [
-    { date: "2023-08-01", score: 650 },
-    { date: "2023-09-01", score: 700 },
-    { date: "2023-10-01", score: 720 },
-    { date: "2023-11-01", score: 780 },
-    { date: "2023-12-01", score: 820 }
-  ]
 };
 
 const MOCK_ANOMALIES: Anomaly[] = [
@@ -104,16 +83,6 @@ export const aiAnalyticsActions = {
       await apiClient.post(`/ai/analytics/anomalies/${id}/dismiss`);
     } catch (e) {
       console.log("Mock dismiss");
-    }
-  },
-
-  async getFinancialHealth(): Promise<FinancialHealthResponse> {
-    try {
-        const response = await apiClient.get<FinancialHealthResponse>("/ai/analytics/financial-health");
-        return response.data;
-    } catch (error) {
-         console.warn("API Error (Financial Health), returning mock data:", error);
-         return MOCK_HEALTH;
     }
   },
 
