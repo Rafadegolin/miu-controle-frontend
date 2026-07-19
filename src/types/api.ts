@@ -530,11 +530,7 @@ export interface AddPurchaseLinkDto {
   note?: string;
 }
 
-export interface ContributeGoalDto {
-  amount: number;
-  transactionId?: string;
-  date?: string;
-}
+export type ContributeGoalDto = components["schemas"]["ContributeGoalDto"];
 
 export interface CreateBudgetDto {
   categoryId: string;
