@@ -1,6 +1,9 @@
 // ============================================
 // TIPOS DO BACKEND - API MIU CONTROLE
 // ============================================
+// Migração incremental para tipos gerados do contrato: ver src/types/OPENAPI.md.
+// Alguns tipos abaixo já são aliases de `components["schemas"][...]` (openapi.d.ts).
+import type { components } from "./openapi";
 
 // === ENUMS ===
 export enum AccountType {
@@ -1022,12 +1025,7 @@ export interface CursorPaginationParams {
 }
 
 // --- OCR / recibo (transactions.md) ---
-export interface ReceiptItemDto {
-  name: string;
-  quantity: number;
-  unitPrice: number;
-  total: number;
-}
+export type ReceiptItemDto = components["schemas"]["ReceiptItemDto"];
 
 export interface ReceiptPreview {
   description: string | null;
@@ -1067,13 +1065,7 @@ export interface ImportPreviewOptions {
   typeColumn?: string; // opcional; se ausente, tipo inferido pelo sinal
 }
 
-export interface ParsedTransactionDto {
-  date: string; // ISO date
-  amount: number; // >= 0.01, sempre positivo
-  type: TransactionType;
-  description: string;
-  externalId?: string; // FITID p/ dedup
-}
+export type ParsedTransactionDto = components["schemas"]["ParsedTransactionDto"];
 
 export interface ImportPreviewResponse {
   format: ImportFormat;
@@ -1088,10 +1080,7 @@ export interface ImportPreviewResponse {
   transactions: ParsedTransactionDto[];
 }
 
-export interface ConfirmImportDto {
-  accountId: string;
-  transactions: ParsedTransactionDto[];
-}
+export type ConfirmImportDto = components["schemas"]["ConfirmImportDto"];
 
 export interface ConfirmImportResponse {
   imported: number;
