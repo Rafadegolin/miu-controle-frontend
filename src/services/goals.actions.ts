@@ -157,20 +157,9 @@ export const goalsActions = {
   async getPurchaseLinksSummary(
     goalId: string,
   ): Promise<PurchaseLinksSummaryResponse> {
-    // Nota: o backend usa a chave `byCurrenty` (typo), normalizamos para byCurrency.
-    const res = await apiClient.get<{
-      total: number;
-      totalBRL: number;
-      byCurrenty?: Record<string, number>;
-      byCurrency?: Record<string, number>;
-      links: PurchaseLinksSummaryResponse["links"];
-    }>(`/goals/${goalId}/purchase-links/summary`);
-    const d = res.data;
-    return {
-      total: d.total,
-      totalBRL: d.totalBRL,
-      byCurrency: d.byCurrenty ?? d.byCurrency ?? {},
-      links: d.links ?? [],
-    };
+    const res = await apiClient.get<PurchaseLinksSummaryResponse>(
+      `/goals/${goalId}/purchase-links/summary`,
+    );
+    return res.data;
   },
 };

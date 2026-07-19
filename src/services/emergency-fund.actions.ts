@@ -1,4 +1,3 @@
-import { AxiosError } from "axios";
 import { apiClient } from "./api-client";
 import { EmergencyFund, EmergencyFundWithdrawal } from "@/types/api";
 
@@ -46,17 +45,8 @@ export async function setupEmergencyFund(): Promise<EmergencyFund> {
 }
 
 export async function contributeToFund(amount: number): Promise<void> {
-  try {
-    await apiClient.post("/emergency-fund/contribute", { amount });
-  } catch (err) {
-    // Fundo ainda não inicializado: cria e tenta de novo.
-    if ((err as AxiosError).response?.status === 404) {
-      await apiClient.post("/emergency-fund/setup");
-      await apiClient.post("/emergency-fund/contribute", { amount });
-      return;
-    }
-    throw err;
-  }
+  // O backend faz auto-init do fundo no 1º aporte.
+  await apiClient.post("/emergency-fund/contribute", { amount });
 }
 
 export async function withdrawFromFund(

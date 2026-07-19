@@ -51,9 +51,8 @@ export const onboardingService = {
       monthlyIncome: data.monthlyIncome !== undefined && data.monthlyIncome !== null && !isNaN(Number(data.monthlyIncome)) ? Number(data.monthlyIncome) : null,
       avatarUrl: avatarUrl || null,
       
-      // Preferences
+      // Preferences (multi-moeda removido; backend usa BRL por default)
       theme: data.theme,
-      preferredCurrency: data.currency, // Using 'preferredCurrency' to be explicit
       language: 'pt-BR',
       isAiEnabled: true,
       aiPersonality: 'investor'

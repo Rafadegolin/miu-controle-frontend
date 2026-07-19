@@ -1,4 +1,5 @@
 import { apiClient } from "./api-client";
+import type { HealthScoreAchievements } from "@/types/api";
 
 export interface GamificationProfile {
   level: number;
@@ -12,6 +13,8 @@ export interface Mission {
   title: string;
   description: string;
   rewardXp: number;
+  progress: number;
+  target: number;
   isCompleted: boolean;
   isClaimed: boolean;
 }
@@ -56,11 +59,20 @@ export const gamificationActions = {
       title: m.mission.title,
       description: m.mission.description,
       rewardXp: m.mission.xpReward,
+      progress: m.progress,
+      target: m.target,
       isCompleted: m.status === "COMPLETED",
       // O backend concede a recompensa automaticamente ao concluir — não há
       // "resgate" manual, então concluída == coletada.
       isClaimed: m.status === "COMPLETED",
     }));
+  },
+
+  async getAchievements(): Promise<HealthScoreAchievements> {
+    const res = await apiClient.get<HealthScoreAchievements>(
+      "/gamification/achievements",
+    );
+    return res.data;
   },
 
   // Mantido por compatibilidade com o hook; o backend não expõe resgate manual
